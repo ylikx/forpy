@@ -53,7 +53,7 @@ unittest_mod.o: unittest_mod.F90 unittest_mod.inc
 	$(FC) $(FCFLAGS) -c -o $@ $<
 
 forpy_mod.F90: ../forpy_mod.fypp
-	../fypp.py ../forpy_mod.fypp forpy_mod.F90
+	python2 ../fypp.py ../forpy_mod.fypp forpy_mod.F90
 
 .PHONY: clean
 clean:

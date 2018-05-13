@@ -641,10 +641,10 @@ Forpy is created from a template file. Therefore *do not* edit
 forpy_mod.F90, but only `forpy_mod.fypp`. This template file has to be preprocessed using
 Balint Aradi's [fypp](https://github.com/aradi/fypp).
 
-Assuming that you have fypp in your current directory, type
+Assuming that you have fypp in your current directory, type (use Python 2 when running fypp.py)
 
 ```
-python fypp.py forpy_mod.fypp forpy_mod.F90
+python2 fypp.py forpy_mod.fypp forpy_mod.F90
 ```
 
 ## Building documentation
