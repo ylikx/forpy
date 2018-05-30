@@ -38,7 +38,7 @@ Building the example:
 
 To try the examples, copy the file [`forpy_mod.F90`](forpy_mod.F90) to your working directory.
 Here I assume that you are using Python 3 (version >= 3.3) and 
-gfortran (ifort also supported). See below for [Python 2](python-2-support) support. 
+gfortran (ifort also supported). See below for [Python 2](#python-2-support) support. 
 Save the example as `intro_to_forpy.F90` and type:
 
 ```
