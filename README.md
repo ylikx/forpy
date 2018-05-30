@@ -58,6 +58,8 @@ You should get the output:
 [19, 'Hello world!', 3.14]
 ```
 
+If `python3-config` is not found, you might have to install the package `python3-dev` (on Ubuntu, Debian). 
+
 For simplicity this example and most following examples do not contain error handling code.
 
 ## Tuples, objects
@@ -477,7 +479,10 @@ gfortran -c -DPYTHON2 forpy_mod.F90
 gfortran intro_to_forpy.F90 forpy_mod.o `python2-config --ldflags`
 ```
 
-Note that here, you use python2-config.
+Note that here, you use python2-config. 
+
+If `python2-config` is not present on your system, install the package 
+`python-dev` (Ubuntu, Debian). 
 
 On a 32-bit system use the macro PYTHON2_32
 
