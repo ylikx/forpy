@@ -642,6 +642,96 @@ subroutine test_ndarray_create_ones03()
   call nd_arr%destroy
 end subroutine
 
+subroutine test_dtype_int32()
+  integer ierror
+  type(ndarray) :: nd_arr
+  integer(kind=int32), dimension(:), pointer :: ptr_int32  
+  integer(kind=int64), dimension(:), pointer :: ptr_int64
+  ierror = ndarray_create_zeros(nd_arr, 1, dtype="int32")
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_int32)
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_int64)
+  ASSERT(ierror==EXCEPTION_ERROR)
+  call err_clear
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_dtype_int64()
+  integer ierror
+  type(ndarray) :: nd_arr
+  integer(kind=int32), dimension(:), pointer :: ptr_int32  
+  integer(kind=int64), dimension(:), pointer :: ptr_int64
+  ierror = ndarray_create_zeros(nd_arr, 1, dtype="int64")
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_int32)
+  ASSERT(ierror==EXCEPTION_ERROR)
+  call err_clear
+  ierror = nd_arr%get_data(ptr_int64)
+  ASSERT(ierror==0)
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_dtype_float32()
+  integer ierror
+  type(ndarray) :: nd_arr
+  real(kind=real32), dimension(:), pointer :: ptr_real32  
+  real(kind=real64), dimension(:), pointer :: ptr_real64
+  ierror = ndarray_create_zeros(nd_arr, 1, dtype="float32")
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_real32)
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_real64)
+  ASSERT(ierror==EXCEPTION_ERROR)
+  call err_clear
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_dtype_float64()
+  integer ierror
+  type(ndarray) :: nd_arr
+  real(kind=real32), dimension(:), pointer :: ptr_real32  
+  real(kind=real64), dimension(:), pointer :: ptr_real64
+  ierror = ndarray_create_zeros(nd_arr, 1, dtype="float64")
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_real32)
+  ASSERT(ierror==EXCEPTION_ERROR)
+  call err_clear
+  ierror = nd_arr%get_data(ptr_real64)
+  ASSERT(ierror==0)
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_dtype_complex64()
+  integer ierror
+  type(ndarray) :: nd_arr
+  complex(kind=real32), dimension(:), pointer :: ptr_creal32  
+  complex(kind=real64), dimension(:), pointer :: ptr_creal64
+  ierror = ndarray_create_zeros(nd_arr, 1, dtype="complex64")
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_creal32)
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_creal64)
+  ASSERT(ierror==EXCEPTION_ERROR)
+  call err_clear
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_dtype_complex128()
+  integer ierror
+  type(ndarray) :: nd_arr
+  complex(kind=real32), dimension(:), pointer :: ptr_creal32  
+  complex(kind=real64), dimension(:), pointer :: ptr_creal64
+  ierror = ndarray_create_zeros(nd_arr, 1, dtype="complex128")
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr_creal32)
+  ASSERT(ierror==EXCEPTION_ERROR)
+  call err_clear
+  ierror = nd_arr%get_data(ptr_creal64)
+  ASSERT(ierror==0)
+  call nd_arr%destroy
+end subroutine
+
 ! code to execute before every test
 subroutine setUp()
 

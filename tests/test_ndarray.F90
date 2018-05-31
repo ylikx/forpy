@@ -54,6 +54,12 @@ TEST(test_ndarray_create_zeros03)
 TEST(test_ndarray_create_ones01)
 TEST(test_ndarray_create_ones02)
 TEST(test_ndarray_create_ones03)
+TEST(test_dtype_int32)
+TEST(test_dtype_int64)
+TEST(test_dtype_float32)
+TEST(test_dtype_float64)
+TEST(test_dtype_complex64)
+TEST(test_dtype_complex128)
 call tearDownClass
 
 end program
