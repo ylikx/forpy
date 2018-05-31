@@ -2968,13 +2968,13 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
 
   !check if correct format
   if (associated(shape_ptr)) then
-    if (strcmp(buffer%format, c_loc(format_c_string)) /= 0) then
+    if (get_data_helper_check_dtype(buffer%format, format_c_string) /= 0) then
       ierror = EXCEPTION_ERROR
       call raise_exception(TypeError, "forpy: ndarray%get_data - datatype of data pointer is incompatible with ndarray")
     endif
   else
     ierror = EXCEPTION_ERROR
-    call raise_exception(RuntimeError, "forpy: Could not determine format of ndarray")
+    call raise_exception(RuntimeError, "forpy: Could not determine shape of ndarray")
   endif
 
   if (ierror /= 0_C_INT) then
@@ -2986,6 +2986,56 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
   call get_shape_info_helper(shape_info, shape_ptr, detected_order)
   call PyBuffer_Release(buffer)
 
+end function
+
+! returns 0 if dtype matches fortran type, non-zero if not
+function get_data_helper_check_dtype(buffer_format, format_c_string) result(flag)
+  type(c_ptr), intent(in) :: buffer_format
+  character(kind=C_CHAR, len=*), target, intent(in) :: format_c_string
+  
+  character(kind=C_CHAR, len=2), target :: format_code
+  integer(kind=C_INT) :: flag
+  
+  flag = 1_C_INT
+      
+  ! the Python buffer format codes corresponding to int32 and int64 are systems dependent... 
+   
+  if (format_c_string == "i" // C_NULL_CHAR) then  ! buffer type compatible with int32 requested
+    if (int32 == C_INT) then
+      format_code = "i" // C_NULL_CHAR
+      flag = strcmp(buffer_format, c_loc(format_code))
+    endif
+    if (flag /= 0) then
+      if (int32 == C_LONG) then
+        format_code = "l" // C_NULL_CHAR
+        flag = strcmp(buffer_format, c_loc(format_code))
+      endif
+    endif
+    return
+  endif
+  
+  if (format_c_string == "l" // C_NULL_CHAR) then  ! buffer type compatible with int64 requested
+    if (int64 == C_LONG) then
+      format_code = "l" // C_NULL_CHAR
+      flag = strcmp(buffer_format, c_loc(format_code))
+    endif
+    if (flag /= 0) then
+      if (int64 == C_LONG_LONG) then
+        format_code = "q" // C_NULL_CHAR
+        flag = strcmp(buffer_format, c_loc(format_code))
+      endif
+    endif
+    if (flag /= 0) then
+      if (int64 == C_INT) then
+        format_code = "i" // C_NULL_CHAR
+        flag = strcmp(buffer_format, c_loc(format_code))
+      endif
+    endif
+    return
+  endif
+  
+  ! this handles all the non-integer cases    
+  flag = strcmp(buffer_format, c_loc(format_c_string))
 end function
 
 subroutine get_shape_info_helper(shape_info, shape_ptr, order)
