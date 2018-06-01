@@ -38,7 +38,13 @@ Building the example:
 
 To try the examples, copy the file [`forpy_mod.F90`](forpy_mod.F90) to your working directory.
 Here I assume that you are using Python 3 (version >= 3.3) and 
-gfortran (ifort also supported). See below for [Python 2](#python-2-support) support. 
+gfortran (ifort also supported). 
+
+If you are using *Anaconda* and have problems when building read
+[Using forpy with Anaconda](#using-forpy-with-anaconda). 
+
+For use with Python 2 read [Python 2 support](#python-2-support).
+ 
 Save the example as `intro_to_forpy.F90` and type:
 
 ```
@@ -659,5 +665,23 @@ You can create documentation from the source code with Chris MacMackin's
 
 ```
 ford forpy_project.md
+```
+
+# Notes
+
+## Using forpy with Anaconda
+
+When using forpy with Anaconda and gfortran, you might encounter the following error:
+
+```
+/usr/bin/x86_64-linux-gnu-ld: error: lto-wrapper failed
+collect2: error: ld returned 1 exit status
+```
+
+A solution to this problem is to add the `-fno-lto` compiler flag in the linking step:
+
+```
+gfortran -c forpy_mod.F90
+gfortran intro_to_forpy.F90 forpy_mod.o -fno-lto `python3-config --ldflags`
 ```
 
