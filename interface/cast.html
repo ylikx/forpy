@@ -1,0 +1,2817 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	 
+	 <meta name="description" content="Forpy - use Python in Fortran. A library for Fortran-Python interoperability">
+    
+    <meta name="author" content="Elias Rabel" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>cast &ndash; Forpy</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">Forpy </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+				
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+		 aria-expanded="false">Contents <span class="caret"></span></a>
+	      <ul class="dropdown-menu">
+              
+            <li><a href="../sourcefile/forpy_mod.f90.html">Source File</a></li>
+				
+				
+            <li><a href="../lists/modules.html">Modules</a></li>
+				
+            
+                                
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+				
+								
+            <li><a href="../lists/types.html">Derived Types</a></li>
+				
+				
+            </ul>
+            </li>
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../sourcefile/forpy_mod.f90.html">Source File</a></li>
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+
+                             
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+
+
+          </ul>
+        
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+    
+  
+  <div class="row">
+    <h1>cast
+	 <small>Interface</small>
+    
+    </h1>
+    
+<div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     
+     
+     
+     
+    
+    
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+	  data-placement="bottom" data-html="true"
+	  title="<p> 8.3% of total for procedures.</p>Including implementation: 318 statements, 88.1% of total for procedures.">30 statements</a>
+     </li> 
+     
+     
+    <li><i class="fa fa-code"></i><a href="../src/forpy_mod.F90"> Source File</a></li>
+     
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+  
+     <li><a href='../sourcefile/forpy_mod.f90.html'>forpy_mod.F90</a></li>
+  
+     <li><a href='../module/forpy_mod.html'>forpy_mod</a></li>
+  
+     <li class="active">cast</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      
+<div id="sidebar">
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#modprocs-0">Module Procedures</a></h3></div>
+  <div id="modprocs-0" class="panel-collapse collapse">
+    <div class="list-group">
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_list">cast_to_list</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_dict">cast_to_dict</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_tuple">cast_to_tuple</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_nonetype">cast_to_NoneType</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_ndarray">cast_to_ndarray</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_char_1d">cast_to_char_1d</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_chars">cast_to_chars</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_int32">cast_to_int32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_int32_flex">cast_to_int32_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_int32">cast_from_int32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_int64">cast_to_int64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_int64_flex">cast_to_int64_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_int64">cast_from_int64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_real32">cast_to_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_real32_flex">cast_to_real32_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_real32">cast_from_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_real64">cast_to_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_real64_flex">cast_to_real64_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_real64">cast_from_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_complex_real32">cast_to_complex_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_complex_real32_flex">cast_to_complex_real32_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_complex_real32">cast_from_complex_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_complex_real64">cast_to_complex_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_complex_real64_flex">cast_to_complex_real64_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_complex_real64">cast_from_complex_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_logical">cast_to_logical</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_logical_flex">cast_to_logical_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_logical">cast_from_logical</a>
+      
+    </div>
+  </div>
+</div>
+
+
+
+  <hr>
+  
+
+<div class="panel panel-default">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#allprocs-0">All Procedures</a></h3></div>
+  <div id="allprocs-0" class="panel-collapse collapse">
+    <div class="list-group">
+      
+      <a class="list-group-item" href="../interface/assign_py.html">assign_py</a>
+      
+      <a class="list-group-item" href="../interface/bytes_create.html">bytes_create</a>
+      
+      <a class="list-group-item" href="../interface/call_py.html">call_py</a>
+      
+      <a class="list-group-item" href="../interface/call_py_noret.html">call_py_noret</a>
+      
+      <a class="list-group-item" href="../interface/cast.html">cast</a>
+      
+      <a class="list-group-item" href="../proc/dict_create.html">dict_create</a>
+      
+      <a class="list-group-item" href="../proc/err_clear.html">err_clear</a>
+      
+      <a class="list-group-item" href="../proc/err_print.html">err_print</a>
+      
+      <a class="list-group-item" href="../proc/exception_matches.html">exception_matches</a>
+      
+      <a class="list-group-item" href="../proc/forpy_finalize.html">forpy_finalize</a>
+      
+      <a class="list-group-item" href="../proc/forpy_initialize.html">forpy_initialize</a>
+      
+      <a class="list-group-item" href="../proc/forpy_initialize_ext.html">forpy_initialize_ext</a>
+      
+      <a class="list-group-item" href="../proc/get_sys_path.html">get_sys_path</a>
+      
+      <a class="list-group-item" href="../proc/have_exception.html">have_exception</a>
+      
+      <a class="list-group-item" href="../proc/import_py.html">import_py</a>
+      
+      <a class="list-group-item" href="../proc/is_bool.html">is_bool</a>
+      
+      <a class="list-group-item" href="../proc/is_bytes.html">is_bytes</a>
+      
+      <a class="list-group-item" href="../proc/is_complex.html">is_complex</a>
+      
+      <a class="list-group-item" href="../proc/is_dict.html">is_dict</a>
+      
+      <a class="list-group-item" href="../proc/is_float.html">is_float</a>
+      
+      <a class="list-group-item" href="../proc/is_int.html">is_int</a>
+      
+      <a class="list-group-item" href="../proc/is_list.html">is_list</a>
+      
+      <a class="list-group-item" href="../proc/is_long.html">is_long</a>
+      
+      <a class="list-group-item" href="../proc/is_ndarray.html">is_ndarray</a>
+      
+      <a class="list-group-item" href="../proc/is_none.html">is_none</a>
+      
+      <a class="list-group-item" href="../proc/is_null.html">is_null</a>
+      
+      <a class="list-group-item" href="../proc/is_str.html">is_str</a>
+      
+      <a class="list-group-item" href="../proc/is_tuple.html">is_tuple</a>
+      
+      <a class="list-group-item" href="../proc/is_unicode.html">is_unicode</a>
+      
+      <a class="list-group-item" href="../interface/list_create.html">list_create</a>
+      
+      <a class="list-group-item" href="../interface/ndarray_create.html">ndarray_create</a>
+      
+      <a class="list-group-item" href="../interface/ndarray_create_empty.html">ndarray_create_empty</a>
+      
+      <a class="list-group-item" href="../interface/ndarray_create_ones.html">ndarray_create_ones</a>
+      
+      <a class="list-group-item" href="../interface/ndarray_create_zeros.html">ndarray_create_zeros</a>
+      
+      <a class="list-group-item" href="../proc/nonetype_create.html">NoneType_create</a>
+      
+      <a class="list-group-item" href="../proc/print_py.html">print_py</a>
+      
+      <a class="list-group-item" href="../proc/raise_exception.html">raise_exception</a>
+      
+      <a class="list-group-item" href="../proc/run_string.html">run_string</a>
+      
+      <a class="list-group-item" href="../interface/str_create.html">str_create</a>
+      
+      <a class="list-group-item" href="../interface/tuple_create.html">tuple_create</a>
+      
+      <a class="list-group-item" href="../interface/unicode_create.html">unicode_create</a>
+      
+      <a class="list-group-item" href="../proc/unsafe_cast_from_c_ptr.html">unsafe_cast_from_c_ptr</a>
+      
+    </div>
+  </div>
+</div>
+
+
+</div>  
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+      <h2>public interface cast</h2>
+	 <p>Casts/Transforms between Fortran and Python datatypes</p>
+<p>Result is 1st argument to cast, object/scalar to cast 2nd argument
+ Use to cast/transform a Python <a href="../type/object.html">object</a> into a Fortran values
+ Use to cast/transform Fortran values into a Python <a href="../type/object.html">object</a>
+ and to cast an unspecific Python <a href="../type/object.html">object</a> into more specific objects, such
+ as <a href="../type/list.html">list</a>, <a href="../type/tuple.html">tuple</a>, <a href="../type/dict.html">dict</a>
+ Fortran values can be scalars and character strings or character arrays
+ Fortran character strings are decoded as UTF-8
+ Python strings are encoded as UTF-8</p>
+<p>For casting to numerical Fortran scalars, there is an optional 3rd argument "strict"
+ for cast: if strict=.false. it will try to convert numerical values to the requested
+ datatype (default: strict=.true.)</p>
+     
+     
+    <br>
+
+     <section class="visible-xs visible-sm hidden-md">
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#modprocs-1">Module Procedures</a></h3></div>
+  <div id="modprocs-1" class="panel-collapse collapse">
+    <div class="list-group">
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_list">cast_to_list</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_dict">cast_to_dict</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_tuple">cast_to_tuple</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_nonetype">cast_to_NoneType</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_ndarray">cast_to_ndarray</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_char_1d">cast_to_char_1d</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_chars">cast_to_chars</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_int32">cast_to_int32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_int32_flex">cast_to_int32_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_int32">cast_from_int32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_int64">cast_to_int64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_int64_flex">cast_to_int64_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_int64">cast_from_int64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_real32">cast_to_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_real32_flex">cast_to_real32_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_real32">cast_from_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_real64">cast_to_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_real64_flex">cast_to_real64_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_real64">cast_from_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_complex_real32">cast_to_complex_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_complex_real32_flex">cast_to_complex_real32_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_complex_real32">cast_from_complex_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_complex_real64">cast_to_complex_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_complex_real64_flex">cast_to_complex_real64_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_complex_real64">cast_from_complex_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_logical">cast_to_logical</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_logical_flex">cast_to_logical_flex</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_from_logical">cast_from_logical</a>
+      
+    </div>
+  </div>
+</div>
+
+
+
+     </section>
+     <br class="visible-xs visible-sm hidden-md">
+     
+	
+
+	
+
+	
+	 <h2>Module Procedures</h2>
+	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_list"></span><h3>
+private function cast_to_list(li, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/list.html'>list</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>li</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_dict"></span><h3>
+private function cast_to_dict(di, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/dict.html'>dict</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>di</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_tuple"></span><h3>
+private function cast_to_tuple(tu, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/tuple.html'>tuple</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>tu</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_nonetype"></span><h3>
+private function cast_to_NoneType(no, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/nonetype.html'>NoneType</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>no</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_ndarray"></span><h3>
+private function cast_to_ndarray(nd, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>nd</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_char_1d"></span><h3>
+private function cast_to_char_1d(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>character(kind=C_CHAR),</td>
+  <td></td>
+  <td></td>
+  
+  <td>dimension(:), pointer</td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_chars"></span><h3>
+private function cast_to_chars(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>character(kind=C_CHAR,len=:),</td>
+  <td>intent(out),</td>
+  <td></td>
+  
+  <td>allocatable</td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_int32"></span><h3>
+private function cast_to_int32(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int32),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_int32_flex"></span><h3>
+private function cast_to_int32_flex(out_value, obj, strict) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int32),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>strict</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_from_int32"></span><h3>
+private function cast_from_int32(obj, in_value) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int32),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>in_value</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_int64"></span><h3>
+private function cast_to_int64(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int64),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_int64_flex"></span><h3>
+private function cast_to_int64_flex(out_value, obj, strict) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int64),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>strict</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_from_int64"></span><h3>
+private function cast_from_int64(obj, in_value) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int64),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>in_value</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_real32"></span><h3>
+private function cast_to_real32(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real32),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_real32_flex"></span><h3>
+private function cast_to_real32_flex(out_value, obj, strict) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real32),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>strict</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_from_real32"></span><h3>
+private function cast_from_real32(obj, in_value) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real32),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>in_value</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_real64"></span><h3>
+private function cast_to_real64(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real64),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_real64_flex"></span><h3>
+private function cast_to_real64_flex(out_value, obj, strict) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real64),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>strict</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_from_real64"></span><h3>
+private function cast_from_real64(obj, in_value) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real64),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>in_value</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_complex_real32"></span><h3>
+private function cast_to_complex_real32(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real32),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_complex_real32_flex"></span><h3>
+private function cast_to_complex_real32_flex(out_value, obj, strict) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real32),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>strict</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_from_complex_real32"></span><h3>
+private function cast_from_complex_real32(obj, in_value) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real32),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>in_value</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_complex_real64"></span><h3>
+private function cast_to_complex_real64(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real64),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_complex_real64_flex"></span><h3>
+private function cast_to_complex_real64_flex(out_value, obj, strict) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real64),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>strict</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_from_complex_real64"></span><h3>
+private function cast_from_complex_real64(obj, in_value) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real64),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>in_value</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_logical"></span><h3>
+private function cast_to_logical(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_logical_flex"></span><h3>
+private function cast_to_logical_flex(out_value, obj, strict) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>strict</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_from_logical"></span><h3>
+private function cast_from_logical(obj, in_value) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>in_value</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+  	 
+
+ </div>
+</div>
+
+  <section class="visible-xs visible-sm hidden-md">
+    <hr>
+    
+
+<div class="panel panel-default">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#allprocs-1">All Procedures</a></h3></div>
+  <div id="allprocs-1" class="panel-collapse collapse">
+    <div class="list-group">
+      
+      <a class="list-group-item" href="../interface/assign_py.html">assign_py</a>
+      
+      <a class="list-group-item" href="../interface/bytes_create.html">bytes_create</a>
+      
+      <a class="list-group-item" href="../interface/call_py.html">call_py</a>
+      
+      <a class="list-group-item" href="../interface/call_py_noret.html">call_py_noret</a>
+      
+      <a class="list-group-item" href="../interface/cast.html">cast</a>
+      
+      <a class="list-group-item" href="../proc/dict_create.html">dict_create</a>
+      
+      <a class="list-group-item" href="../proc/err_clear.html">err_clear</a>
+      
+      <a class="list-group-item" href="../proc/err_print.html">err_print</a>
+      
+      <a class="list-group-item" href="../proc/exception_matches.html">exception_matches</a>
+      
+      <a class="list-group-item" href="../proc/forpy_finalize.html">forpy_finalize</a>
+      
+      <a class="list-group-item" href="../proc/forpy_initialize.html">forpy_initialize</a>
+      
+      <a class="list-group-item" href="../proc/forpy_initialize_ext.html">forpy_initialize_ext</a>
+      
+      <a class="list-group-item" href="../proc/get_sys_path.html">get_sys_path</a>
+      
+      <a class="list-group-item" href="../proc/have_exception.html">have_exception</a>
+      
+      <a class="list-group-item" href="../proc/import_py.html">import_py</a>
+      
+      <a class="list-group-item" href="../proc/is_bool.html">is_bool</a>
+      
+      <a class="list-group-item" href="../proc/is_bytes.html">is_bytes</a>
+      
+      <a class="list-group-item" href="../proc/is_complex.html">is_complex</a>
+      
+      <a class="list-group-item" href="../proc/is_dict.html">is_dict</a>
+      
+      <a class="list-group-item" href="../proc/is_float.html">is_float</a>
+      
+      <a class="list-group-item" href="../proc/is_int.html">is_int</a>
+      
+      <a class="list-group-item" href="../proc/is_list.html">is_list</a>
+      
+      <a class="list-group-item" href="../proc/is_long.html">is_long</a>
+      
+      <a class="list-group-item" href="../proc/is_ndarray.html">is_ndarray</a>
+      
+      <a class="list-group-item" href="../proc/is_none.html">is_none</a>
+      
+      <a class="list-group-item" href="../proc/is_null.html">is_null</a>
+      
+      <a class="list-group-item" href="../proc/is_str.html">is_str</a>
+      
+      <a class="list-group-item" href="../proc/is_tuple.html">is_tuple</a>
+      
+      <a class="list-group-item" href="../proc/is_unicode.html">is_unicode</a>
+      
+      <a class="list-group-item" href="../interface/list_create.html">list_create</a>
+      
+      <a class="list-group-item" href="../interface/ndarray_create.html">ndarray_create</a>
+      
+      <a class="list-group-item" href="../interface/ndarray_create_empty.html">ndarray_create_empty</a>
+      
+      <a class="list-group-item" href="../interface/ndarray_create_ones.html">ndarray_create_ones</a>
+      
+      <a class="list-group-item" href="../interface/ndarray_create_zeros.html">ndarray_create_zeros</a>
+      
+      <a class="list-group-item" href="../proc/nonetype_create.html">NoneType_create</a>
+      
+      <a class="list-group-item" href="../proc/print_py.html">print_py</a>
+      
+      <a class="list-group-item" href="../proc/raise_exception.html">raise_exception</a>
+      
+      <a class="list-group-item" href="../proc/run_string.html">run_string</a>
+      
+      <a class="list-group-item" href="../interface/str_create.html">str_create</a>
+      
+      <a class="list-group-item" href="../interface/tuple_create.html">tuple_create</a>
+      
+      <a class="list-group-item" href="../interface/unicode_create.html">unicode_create</a>
+      
+      <a class="list-group-item" href="../proc/unsafe_cast_from_c_ptr.html">unsafe_cast_from_c_ptr</a>
+      
+    </div>
+  </div>
+</div>
+
+
+  </section>
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-4"><p>&copy; 2018 </p></div>
+        <div class="col-xs-6 col-md-4 col-md-push-4">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/cmacmackin/ford">FORD</a>
+            
+          </p>
+        </div>
+        <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> Forpy was developed by Elias Rabel</p></div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js'],
+        'HTML-CSS': { 
+           styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: '#000000 ! important'} }
+        }
+      });
+    </script>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  </body>
+</html>
