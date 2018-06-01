@@ -8,6 +8,11 @@ It allows you to use your own and third-party Python modules.
 
 Furthermore you can write Python (extension) modules in Fortran ("Fortran in Python")
 
+## Documentation
+
+- This readme (start with that)
+- More info: [API reference](https://ylikx.github.io/forpy/index.html)
+
 ## Getting started
 
 A simple example using a Python list:
