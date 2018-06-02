@@ -596,7 +596,7 @@ end function
 ! First arg is c_ptr to module, second is c_ptr to argument tuple
 ! third is c_ptr to keyword argument dict
 ! Return value must be type(c_ptr)
-function print_args(self_ptr, args_ptr, kwargs_ptr) result(r)
+function print_args(self_ptr, args_ptr, kwargs_ptr) result(r) bind(c)
   type(c_ptr), value :: self_ptr
   type(c_ptr), value :: args_ptr
   type(c_ptr), value :: kwargs_ptr
@@ -612,7 +612,10 @@ function print_args(self_ptr, args_ptr, kwargs_ptr) result(r)
   call unsafe_cast_from_c_ptr(kwargs, kwargs_ptr)
   
   ierror = print_py(args)
-  ierror = print_py(kwargs)
+  
+  if (.not. is_null(kwargs)) then !check if kwargs were passed
+    ierror = print_py(kwargs)
+  endif
   
   ! You always need to return something, at least None
   ierror = NoneType_create(retval)
