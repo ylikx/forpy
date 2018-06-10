@@ -1183,6 +1183,7 @@ interface cast
   module procedure cast_to_tuple
   module procedure cast_to_NoneType
   module procedure cast_to_ndarray
+  module procedure cast_to_object
   
   module procedure cast_to_char_1d
   module procedure cast_to_chars
@@ -1275,8 +1276,7 @@ function forpy_initialize(use_numpy) result(ierror)
   ierror = forpy_initialize_helper(.false., numpy_flag)
 end function
 
-!> Use this function to initialize forpy instead of forpy_initialize, when you
-!> are writing a Python extension.
+!> Deprecated: use forpy_initialize instead
 function forpy_initialize_ext(use_numpy) result(ierror)
   !> Set to .false., if you do not need the array features of forpy powered by numpy. (Default: .true.)
   logical, optional, intent(in) :: use_numpy
@@ -1297,6 +1297,8 @@ function forpy_initialize_helper(is_extension, use_numpy) result(ierror)
   logical, intent(in) :: use_numpy
   integer(kind=C_INT) :: ierror
   
+  ! might remove this in the future, since it is required that
+  ! calling Py_Initialize multiple times is safe
   if (.not. is_extension) then
     call Py_Initialize()
   endif
@@ -2918,12 +2920,12 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
     return
   endif
 
-  ! raises BufferError exception if array is not contiguous
+  ! raises BufferError exception if array is not contiguous, Python 2: ValueError
   ierror = PyObject_GetBuffer(mem_view, buffer, 156_C_INT) !flags (PyBUF_FORMAT | PyBUF_ANY_CONTIGUOUS) - we need the format info and PyBUF_FORMAT alone gives error
   call Py_Decref(mem_view)
 
   if (ierror /= 0) then
-    if (exception_matches(BufferError)) then ! make error message more informative
+    if (exception_matches(BufferError) .or. exception_matches(ValueError)) then ! make error message more informative
       call err_clear
       call raise_exception(BufferError, "forpy: ndarray with non-contiguous data. Fortran or C-order needed: try to copy array")
     endif
@@ -3876,6 +3878,16 @@ function cast_to_ndarray(nd, obj) result(ierror)
     ierror = EXCEPTION_ERROR
     call raise_exception(TypeError, "forpy: Could not cast to ndarray.")
   endif
+end function
+
+function cast_to_object(plain_obj, obj) result(ierror)
+  type(object), intent(out) :: plain_obj
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = 0_C_INT
+  plain_obj%py_object = obj%py_object
+  call Py_IncRef(obj%py_object)
 end function
 
 ! casts to scalar fortran types
