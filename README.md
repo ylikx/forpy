@@ -113,7 +113,7 @@ program tuple_example
     ierror = tu%getitem(item, ii)
     
     ! Use is_int, is_str, is_float, is_none ...
-    ! to check if an object is a certain Python type 
+    ! to check if an object is of a certain Python type 
     if (is_int(item)) then
       ! Use cast to transform 'item' into Fortran type 
       ierror = cast(int_value, item)
@@ -568,9 +568,7 @@ function init() result(m)
   integer :: ierror
   type(object) :: pi
   
-  ! For extension module development:
-  ! Use forpy_initialize_ext instead of forpy_initialize!
-  ierror = forpy_initialize_ext()
+  ierror = forpy_initialize()
   
   call method_table%init(1) ! module shall have 1 method
   
@@ -596,6 +594,7 @@ end function
 ! First arg is c_ptr to module, second is c_ptr to argument tuple
 ! third is c_ptr to keyword argument dict
 ! Return value must be type(c_ptr)
+! bind(c) attribute to make sure that C calling conventions are used
 function print_args(self_ptr, args_ptr, kwargs_ptr) result(r) bind(c)
   type(c_ptr), value :: self_ptr
   type(c_ptr), value :: args_ptr
@@ -611,11 +610,15 @@ function print_args(self_ptr, args_ptr, kwargs_ptr) result(r) bind(c)
   call unsafe_cast_from_c_ptr(args, args_ptr)
   call unsafe_cast_from_c_ptr(kwargs, kwargs_ptr)
   
-  ierror = print_py(args)
-  
-  if (.not. is_null(kwargs)) then !check if kwargs were passed
-    ierror = print_py(kwargs)
+  if (is_null(kwargs)) then
+    ! This is a check if keyword argument were passed to this function.
+    ! If is_null(kwargs), kwargs is not a valid Python object, therefore
+    ! we initialise it as an empty dict
+    ierror = dict_create(kwargs)
   endif
+  
+  ierror = print_py(args)
+  ierror = print_py(kwargs)
   
   ! You always need to return something, at least None
   ierror = NoneType_create(retval)

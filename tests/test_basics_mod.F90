@@ -26,6 +26,19 @@ CONTAINS
 
 #include "unittest_mod.inc"
 
+subroutine test_multiple_inits
+  integer ierror, ierror2
+  logical ok
+  ! it must be safe to call forpy_initialize multiple times
+  ierror = forpy_initialize()
+  ok = (ierror == 0 .or. ierror == NO_NUMPY_ERROR)
+  ASSERT(ok)
+  ierror2 = forpy_initialize()
+  ASSERT(ierror==ierror2)
+  ierror2 = forpy_initialize()
+  ASSERT(ierror==ierror2)  
+end subroutine
+
 subroutine test_simple_call
   integer ierror
   type(object) :: retval
