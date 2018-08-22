@@ -13,6 +13,10 @@ Furthermore you can write Python (extension) modules in Fortran ("Fortran in Pyt
 - This readme (start with that)
 - More info: [API reference](https://ylikx.github.io/forpy/index.html)
 
+## Contact
+
+Elias Rabel (*ylikx.0 AT gmail.com*)
+
 ## Getting started
 
 A simple example using a Python list:
@@ -235,7 +239,6 @@ We want to import the following small Python module:
 
 ```Python
 # File: mymodule.py
-from __future__ import print_function
 
 def print_args(*args, **kwargs):
     print("Arguments: ", args)
@@ -342,7 +345,18 @@ end program
 
 The following example shows how to access the data of a ndarray with 
 the method `ndarray%get_data`. It also shows how to safely return a ndarray
-from a subroutine. In this case the storage is managed by Python.
+from a subroutine. 
+
+We create a new `ndarray` with the function `ndarray_create_empty`, 
+specifying the shape of the array.
+In this case storage is allocated and managed by Python. Memory is freed, when
+there is no reference to the ndarray anymore (don't forget to call the `destroy` method).
+
+You can also create an array of zeros with `ndarray_create_zeros` and an array
+of ones with `ndarray_create_ones`. 
+
+To edit the values of the array, use the Fortran
+pointer returned from `ndarray%get_data`.
 
 ```
 ! Example of how to return a ndarray from a subroutine
@@ -689,10 +703,14 @@ When using forpy with Anaconda and gfortran, you might encounter the following e
 collect2: error: ld returned 1 exit status
 ```
 
-A solution to this problem is to add the `-fno-lto` compiler flag in the linking step:
+1) A solution to this problem is to add the `-fno-lto` (disable link-time optimisation) compiler flag in the linking step:
 
 ```
 gfortran -c forpy_mod.F90
 gfortran intro_to_forpy.F90 forpy_mod.o -fno-lto `python3-config --ldflags`
 ```
 
+2) OR: Another solution is to use the `gfortran` compiler provided by the Anaconda distribution.
+(Install on Linux with `conda install gfortran_linux-64`)
+
+See [Anaconda compiler tools](https://github.com/conda/conda-docs/blob/master/docs/source/user-guide/tasks/build-packages/compiler-tools.rst).
