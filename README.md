@@ -11,7 +11,8 @@ Furthermore you can write Python (extension) modules in Fortran ("Fortran in Pyt
 ## Documentation
 
 - This readme (start with that)
-- More info: [API reference](https://ylikx.github.io/forpy/index.html)
+- [Wiki](https://github.com/ylikx/forpy/wiki)
+- [API reference](https://ylikx.github.io/forpy/index.html)
 
 ## Contact
 
