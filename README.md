@@ -1,12 +1,14 @@
 # Forpy: A library for Fortran-Python interoperability.
 
-Forpy allows you to use Python features in Fortran ("Python in Fortran")
+Forpy allows you to use Python features in Fortran ("embedding Python in Fortran")
 
-For example: datastructures such as list, dict, tuple and interoperability
+It provides datastructures such as list, dict, tuple and interoperability
 of arrays using numpy.
-It allows you to use your own and third-party Python modules.
+With forpy you can even import Python modules in Fortran. Simply use your own or third-party Python modules
+for tasks that you don't want to do in Fortran. For example: plot with matplotlib or use scientific
+functions from scipy.
 
-Furthermore you can write Python (extension) modules in Fortran ("Fortran in Python")
+Forpy also works to other way around: You can write Python modules entirely in Fortran (extending Python with Fortran - "Fortran in Python").
 
 ## Documentation
 
@@ -183,7 +185,7 @@ program dict_example
 end program
 ```
 
-## Using Python modules
+## Import a Python module in Fortran
 
 The following demo, shows how to use a module from Python's standard
 library and introduces `call_py`, which is used to call Python methods and
