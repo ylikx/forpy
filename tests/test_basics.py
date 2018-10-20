@@ -72,3 +72,12 @@ def exception_before_return():
     
 def return_unicode():
     return u"埃利亚斯"
+    
+class ConvertibleNumber:
+	"""Type that can be converted to different (numeric) types"""
+	def __complex__(self):
+		return -12.3+4.56j
+	def __float__(self):
+		return -12.3
+	def __int__(self):
+		return 12

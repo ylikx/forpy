@@ -64,6 +64,7 @@ TEST(test_cast_list_nostrict)
 TEST(test_minus_ones64)
 TEST(test_minus_ones32)
 TEST(test_return_unicode)
+TEST(test_nonstrict_cast_numeric)
 
 call tearDownClass
 

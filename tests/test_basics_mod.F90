@@ -737,6 +737,35 @@ subroutine test_return_unicode
   call retval%destroy
 end subroutine
 
+subroutine test_nonstrict_cast_numeric()
+  ! Testing objects that can be converted to numbers
+  ! because they have magic methods, such as __complex__ 
+  integer :: ierror
+  type(object) :: obj
+  complex(kind=C_DOUBLE), parameter :: SOLUTION_COMPLEX = (-12.3_C_DOUBLE, 4.56_C_DOUBLE)
+  complex(kind=C_DOUBLE) :: a_complex
+  real(kind=C_DOUBLE) :: a_real
+  integer(kind=int64) :: a_int
+  
+  a_complex = 0.0
+  ierror = call_py(obj, test_mod, "ConvertibleNumber")
+  ASSERT(ierror==0)
+  
+  ierror = cast(a_complex, obj, strict=.false.)
+  ASSERT(ierror==0)
+  ASSERT(a_complex==SOLUTION_COMPLEX)
+  
+  ierror = cast(a_real, obj, strict=.false.)
+  ASSERT(ierror==0)
+  ASSERT(a_real==-12.3_C_DOUBLE)
+  
+  ierror = cast(a_int, obj, strict=.false.)
+  ASSERT(ierror==0)
+  ASSERT(a_int==12_int64)
+  
+  call obj%destroy
+end subroutine
+
 subroutine setUp()
 
 end subroutine

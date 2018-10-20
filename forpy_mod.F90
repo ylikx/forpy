@@ -198,6 +198,11 @@ type, bind(c) :: PyTypeObject
 
 end type
 
+type, bind(c) :: Py_complex
+  real(kind=C_DOUBLE) :: real_part
+  real(kind=C_DOUBLE) :: imag_part
+end type
+
 type, bind(c) :: PyMethodDef
   type(c_ptr) :: ml_name
   type(c_funptr) :: ml_meth
@@ -411,17 +416,11 @@ interface
     real(kind=C_DOUBLE), value :: re, im
     type(c_ptr) :: r
   end function
-  
-  function PyComplex_RealAsDouble(obj) bind(c, name="PyComplex_RealAsDouble") result(r)
-    import c_ptr, C_DOUBLE
+
+  function PyComplex_AsCComplex(obj) bind(c, name="PyComplex_AsCComplex") result(r)
+    import c_ptr, Py_complex
     type(c_ptr), value :: obj
-    real(kind=C_DOUBLE) :: r
-  end function
-  
-  function PyComplex_ImagAsDouble(obj) bind(c, name="PyComplex_ImagAsDouble") result(r)
-    import c_ptr, C_DOUBLE
-    type(c_ptr), value :: obj
-    real(kind=C_DOUBLE) :: r
+    type(Py_complex) :: r
   end function
 
   function PyErr_Occurred() bind(c, name="PyErr_Occurred") result(r)
@@ -9798,15 +9797,15 @@ function unbox_value_complex_real32(the_value, obj) result(ierror)
   type(c_ptr), intent(in) :: obj
   integer(kind=C_INT) :: ierror
 
-  real(kind=C_DOUBLE) :: tmp_re, tmp_im
+  type(Py_complex) :: tmp
   type(c_ptr) :: err_obj
   
   ierror = 0_C_INT
-  tmp_re = PyComplex_RealAsDouble(obj)
-  tmp_im = PyComplex_ImagAsDouble(obj)  ! PyComplex_ImagAsDouble seems to always succeed
-  the_value = cmplx(tmp_re, tmp_im, kind=real32)
+  tmp = PyComplex_AsCComplex(obj) !this handles objects with __complex__ method correctly
   
-  if (tmp_re == -1.0_C_DOUBLE) then
+  the_value = cmplx(tmp%real_part, tmp%imag_part, kind=real32)
+  
+  if (tmp%real_part == -1.0_C_DOUBLE) then
     err_obj = PyErr_Occurred()
     if (c_associated(err_obj)) then
       ierror = EXCEPTION_ERROR
@@ -9821,15 +9820,15 @@ function unbox_value_complex_real64(the_value, obj) result(ierror)
   type(c_ptr), intent(in) :: obj
   integer(kind=C_INT) :: ierror
 
-  real(kind=C_DOUBLE) :: tmp_re, tmp_im
+  type(Py_complex) :: tmp
   type(c_ptr) :: err_obj
   
   ierror = 0_C_INT
-  tmp_re = PyComplex_RealAsDouble(obj)
-  tmp_im = PyComplex_ImagAsDouble(obj)  ! PyComplex_ImagAsDouble seems to always succeed
-  the_value = cmplx(tmp_re, tmp_im, kind=real64)
+  tmp = PyComplex_AsCComplex(obj) !this handles objects with __complex__ method correctly
   
-  if (tmp_re == -1.0_C_DOUBLE) then
+  the_value = cmplx(tmp%real_part, tmp%imag_part, kind=real64)
+  
+  if (tmp%real_part == -1.0_C_DOUBLE) then
     err_obj = PyErr_Occurred()
     if (c_associated(err_obj)) then
       ierror = EXCEPTION_ERROR
