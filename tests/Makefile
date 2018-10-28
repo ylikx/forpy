@@ -29,15 +29,19 @@ ifeq ($(PY_VERSION),2)
 endif
 
 .PHONY: tests
-tests: test_basics test_datastructures test_ndarray
+tests: test_basics test_cast test_datastructures test_ndarray
 
 .PHONY: runtests
 runtests: tests
 	./test_basics
+	./test_cast
 	./test_datastructures
 	./test_ndarray
 
 test_basics: test_basics.o test_basics_mod.o forpy_mod.o unittest_mod.o
+	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
+	
+test_cast: test_cast.o test_cast_mod.o forpy_mod.o unittest_mod.o
 	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
 
 test_datastructures: test_datastructures.o test_datastructures_mod.o forpy_mod.o unittest_mod.o
@@ -61,6 +65,7 @@ clean:
 	rm -f *.mod
 	rm -f forpy_mod.F90
 	rm -f test_basics
+	rm -f test_cast
 	rm -f test_datastructures
 	rm -f test_ndarray
 	rm -f *.pyc
@@ -68,6 +73,8 @@ clean:
 # Fortran module dependencies
 test_basics.o: test_basics_mod.o
 test_basics_mod.o: unittest_mod.o forpy_mod.o
+test_cast.o: test_cast_mod.o
+test_cast_mod.o: unittest_mod.o forpy_mod.o
 test_datastructures.o: test_datastructures_mod.o
 test_datastructuers_mod.o: unittest_mod.o forpy_mod.o
 test_ndarray.o: test_ndarray_mod.o
