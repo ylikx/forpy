@@ -37,6 +37,19 @@ TEST(test_cast_int_nostrict)
 TEST(test_cast_list_nostrict)
 TEST(test_nonstrict_cast_numeric)
 
+TEST(test_cast_nonstrict_list_to_list)
+TEST(test_cast_nonstrict_tuple_to_list)
+TEST(test_cast_nonstrict_int_to_list)
+
+TEST(test_cast_nonstrict_list_to_tuple)
+TEST(test_cast_nonstrict_tuple_to_tuple)
+TEST(test_cast_nonstrict_int_to_tuple)
+
+TEST(test_cast_nonstrict_list_to_chars)
+TEST(test_cast_nonstrict_tuple_to_chars)
+TEST(test_cast_nonstrict_int_to_chars)
+TEST(test_cast_nonstrict_bytes_to_chars)
+TEST(test_cast_bytes_to_chars)
 call tearDownClass
 
 end program

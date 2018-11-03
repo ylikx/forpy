@@ -235,6 +235,150 @@ subroutine test_nonstrict_cast_numeric()
   call obj%destroy
 end subroutine
 
+subroutine test_cast_nonstrict_list_to_list
+  integer ierror
+  type(list) :: some_list
+  type(list) :: li
+  ierror = list_create(some_list)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(li, some_list)
+  ASSERT(ierror==0)
+  call some_list%destroy
+  call li%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_tuple_to_list
+  integer ierror
+  type(tuple) :: tu
+  type(list) :: li
+  ierror = tuple_create(tu, 0)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(li, tu)
+  ASSERT(ierror==0)
+  ASSERT(is_list(li))
+  call tu%destroy
+  call li%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_int_to_list
+  integer ierror
+  type(object) :: an_int
+  type(list) :: li
+  logical :: exc_correct
+  ierror = cast(an_int, 345)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(li, an_int)
+  ASSERT(ierror==EXCEPTION_ERROR)
+  exc_correct = exception_matches(TypeError)
+  ASSERT(exc_correct)
+  call err_clear
+  call an_int%destroy
+  call li%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_list_to_tuple
+  integer ierror
+  type(list) :: some_list
+  type(tuple) :: tu
+  ierror = list_create(some_list)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(tu, some_list)
+  ASSERT(ierror==0)
+  ASSERT(is_tuple(tu))
+  call some_list%destroy
+  call tu%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_tuple_to_tuple
+  integer ierror
+  type(tuple) :: some_tuple
+  type(tuple) :: tu
+  ierror = tuple_create(some_tuple, 0)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(tu, some_tuple)
+  ASSERT(ierror==0)
+  ASSERT(is_tuple(tu))
+  call tu%destroy
+  call some_tuple%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_int_to_tuple
+  integer ierror
+  type(object) :: an_int
+  type(tuple) :: tu
+  logical :: exc_correct
+  ierror = cast(an_int, 345)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(tu, an_int)
+  ASSERT(ierror==EXCEPTION_ERROR)
+  exc_correct = exception_matches(TypeError)
+  ASSERT(exc_correct)
+  call err_clear
+  call an_int%destroy
+  call tu%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_list_to_chars
+  integer ierror
+  type(list) :: some_list
+  character(kind=C_CHAR, len=:), allocatable :: string
+  ierror = list_create(some_list)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(string, some_list)
+  ASSERT(ierror==0)
+  ASSERT(string=='[]')
+  call some_list%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_tuple_to_chars
+  integer ierror
+  type(tuple) :: some_tuple
+  character(kind=C_CHAR, len=:), allocatable :: string
+  ierror = tuple_create(some_tuple, 0)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(string, some_tuple)
+  ASSERT(ierror==0)
+  ASSERT(string=='()')
+  call some_tuple%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_int_to_chars
+  integer ierror
+  type(object) :: an_int
+  character(kind=C_CHAR, len=:), allocatable :: string
+  ierror = cast(an_int, 345)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(string, an_int)
+  ASSERT(ierror==0)
+  ASSERT(string=='345')
+  call an_int%destroy
+end subroutine
+
+subroutine test_cast_nonstrict_bytes_to_chars
+  integer ierror
+  type(bytes) :: some_bytes
+  character(kind=C_CHAR, len=:), allocatable :: string
+  ierror = bytes_create(some_bytes, "abcdefgh")
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(string, some_bytes)
+  ASSERT(ierror==0)
+  ! check that we do not get "b'abcdefgh'" instead
+  ASSERT(string=='abcdefgh')
+  call some_bytes%destroy
+end subroutine
+
+subroutine test_cast_bytes_to_chars
+  integer ierror
+  type(bytes) :: some_bytes
+  character(kind=C_CHAR, len=:), allocatable :: string
+  ierror = bytes_create(some_bytes, "abcdefgh")
+  ASSERT(ierror==0)
+  ierror = cast(string, some_bytes)
+  ASSERT(ierror==0)
+  ASSERT(string=='abcdefgh')
+  call some_bytes%destroy
+end subroutine
+
 subroutine setUp()
 
 end subroutine

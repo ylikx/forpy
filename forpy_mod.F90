@@ -49,7 +49,7 @@ NoneType, ndarray, Sequence, MutableSequence, ImmutableSequence, Mapping, &
 tuple_create, list_create, dict_create, bytes_create, str_create, &
 unicode_create, NoneType_create, ndarray_create, ndarray_create_empty, &
 ndarray_create_zeros, ndarray_create_ones, import_py, call_py, call_py_noret, &
-assign_py, cast, PythonMethodTable, PythonModule, forpy_initialize, &
+assign_py, cast, cast_nonstrict, PythonMethodTable, PythonModule, forpy_initialize, &
 forpy_initialize_ext, forpy_finalize, is_long, is_list, is_tuple, is_bytes, &
 is_dict, is_float, is_complex, is_bool, is_unicode, is_int, is_str, is_none, &
 is_null, is_ndarray, exception_matches, err_clear, err_print, have_exception, &
@@ -65,7 +65,7 @@ integer(kind=C_INT), public, parameter :: METH_KEYWORDS = 2_C_INT
 integer(kind=C_INT), public, parameter :: METH_NOARGS = 4_C_INT
 integer(kind=C_INT), public, parameter :: METH_O = 8_C_INT
 
-integer, public, parameter :: PY_SSIZE_T_KIND = C_INTPTR_T !TODO: test system dependence
+integer, public, parameter :: PY_SSIZE_T_KIND = C_INTPTR_T
 
 PRIVATE
 
@@ -355,6 +355,13 @@ interface
     import c_ptr, C_INT
     type(c_ptr), value :: o
     integer(kind=C_INT) :: r
+  end function
+  
+  !PyObject* PyObject_Str(PyObject *o)
+  function PyObject_Str(o) bind(c, name="PyObject_Str") result(r)
+    import c_ptr
+    type(c_ptr), value :: o
+    type(c_ptr) :: r
   end function
 
   !int PySequence_SetItem(PyObject *o, Py_ssize_t i, PyObject *v)
@@ -1710,6 +1717,25 @@ interface cast
   module procedure cast_to_logical
   module procedure cast_to_logical_flex
   module procedure cast_from_logical  
+end interface
+
+!> TODO
+interface cast_nonstrict
+  module procedure cast_nonstrict_to_list
+  !module procedure cast_nonstrict_to_dict
+  module procedure cast_nonstrict_to_tuple
+  !module procedure cast_nonstrict_to_ndarray
+  
+  !module procedure cast_nonstrict_to_char_1d
+  module procedure cast_nonstrict_to_chars
+  
+  !module procedure cast_nonstrict_to_int32 
+  !module procedure cast_nonstrict_to_int64 
+  !module procedure cast_nonstrict_to_real32 
+  !module procedure cast_nonstrict_to_real64 
+  !module procedure cast_nonstrict_to_complex_real32 
+  !module procedure cast_nonstrict_to_complex_real64 
+  !module procedure cast_nonstrict_to_logical 
 end interface
 
 ! Class objects that correspond to Python standard exceptions
@@ -9966,6 +9992,20 @@ function cast_to_list(li, obj) result(ierror)
   endif
 end function
 
+function cast_nonstrict_to_list(li, obj) result(ierror)
+  type(list), intent(out) :: li
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_list(obj)) then
+    ierror = 0_C_INT
+    li%py_object = obj%py_object
+    call Py_IncRef(obj%py_object)
+  else
+    ierror = list_create(li, obj)
+  endif
+end function
+
 function cast_to_dict(di, obj) result(ierror)
   type(dict), intent(out) :: di
   class(object), intent(in) :: obj
@@ -9995,6 +10035,20 @@ function cast_to_tuple(tu, obj) result(ierror)
     tu%py_object = C_NULL_PTR
     ierror = EXCEPTION_ERROR
     call raise_exception(TypeError, "forpy: Could not cast to tuple.")
+  endif
+end function
+
+function cast_nonstrict_to_tuple(tu, obj) result(ierror)
+  type(tuple), intent(out) :: tu
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_tuple(obj)) then
+    ierror = 0_C_INT
+    tu%py_object = obj%py_object
+    call Py_IncRef(obj%py_object)
+  else
+    ierror = tuple_create(tu, obj)
   endif
 end function
 
@@ -10238,6 +10292,29 @@ function cast_to_chars(out_value, obj) result(ierror)
     ierror = EXCEPTION_ERROR
     call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR, len=:).")
   endif
+end function
+
+function cast_nonstrict_to_chars(out_value, obj) result(ierror)
+  character(kind=C_CHAR, len=:), allocatable, intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  type(c_ptr) :: str_obj
+  
+  if (is_str(obj) .or. is_bytes(obj) .or. is_unicode(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+    return
+  endif
+  
+  str_obj = PyObject_Str(obj%py_object)
+  
+  if (.not. c_associated(str_obj)) then
+    ierror = EXCEPTION_ERROR
+    return
+  endif
+  
+  ierror = unbox_value(out_value, str_obj)
+  call Py_DecRef(str_obj)
 end function
 
 function cast_to_char_1d(out_value, obj) result(ierror)
