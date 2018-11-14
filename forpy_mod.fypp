@@ -1204,15 +1204,15 @@ end interface
 !> TODO
 interface cast_nonstrict
   module procedure cast_nonstrict_to_list
-  !module procedure cast_nonstrict_to_dict
   module procedure cast_nonstrict_to_tuple
-  !module procedure cast_nonstrict_to_ndarray
   
-  !module procedure cast_nonstrict_to_char_1d
+  ! no cast_nonstrict_to_char_1d, because one can 
+  ! not always return a pointer to a character buffer
+  
   module procedure cast_nonstrict_to_chars
   
 #:for _, TYPE_NAME, _ in SCALAR_FORTRAN_TYPE_INFO
-  !module procedure cast_nonstrict_to_${TYPE_NAME}$ 
+  module procedure cast_nonstrict_to_${TYPE_NAME}$ 
 #:endfor
 end interface
 
@@ -3955,9 +3955,6 @@ function cast_to_${TYPE_NAME}$(out_value, obj) result(ierror)
   endif
 end function
 
-#:endfor
-
-#:for TYPE, TYPE_NAME, TEST_FUNCTION in SCALAR_FORTRAN_TYPE_INFO
 function cast_to_${TYPE_NAME}$_flex(out_value, obj, strict) result(ierror)
   ${TYPE}$, intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -3969,6 +3966,14 @@ function cast_to_${TYPE_NAME}$_flex(out_value, obj, strict) result(ierror)
   else
     ierror = cast_to_${TYPE_NAME}$(out_value, obj)
   endif
+end function
+
+function cast_nonstrict_to_${TYPE_NAME}$(out_value, obj) result(ierror)
+  ${TYPE}$, intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
 end function
 
 #:endfor
@@ -3984,6 +3989,19 @@ function cast_to_chars(out_value, obj) result(ierror)
   else
     ierror = EXCEPTION_ERROR
     call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR, len=:).")
+  endif
+end function
+
+function cast_to_char_1d(out_value, obj) result(ierror)
+  character(kind=C_CHAR), dimension(:), pointer :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_str(obj) .or. is_bytes(obj) .or. is_unicode(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR), dimension(:), pointer.")
   endif
 end function
 
@@ -4008,19 +4026,6 @@ function cast_nonstrict_to_chars(out_value, obj) result(ierror)
   
   ierror = unbox_value(out_value, str_obj)
   call Py_DecRef(str_obj)
-end function
-
-function cast_to_char_1d(out_value, obj) result(ierror)
-  character(kind=C_CHAR), dimension(:), pointer :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_str(obj) .or. is_bytes(obj) .or. is_unicode(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR), dimension(:), pointer.")
-  endif
 end function
 
 ! casting scalar Fortran types into Python objects

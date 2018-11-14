@@ -1722,20 +1722,20 @@ end interface
 !> TODO
 interface cast_nonstrict
   module procedure cast_nonstrict_to_list
-  !module procedure cast_nonstrict_to_dict
   module procedure cast_nonstrict_to_tuple
-  !module procedure cast_nonstrict_to_ndarray
   
-  !module procedure cast_nonstrict_to_char_1d
+  ! no cast_nonstrict_to_char_1d, because one can 
+  ! not always return a pointer to a character buffer
+  
   module procedure cast_nonstrict_to_chars
   
-  !module procedure cast_nonstrict_to_int32 
-  !module procedure cast_nonstrict_to_int64 
-  !module procedure cast_nonstrict_to_real32 
-  !module procedure cast_nonstrict_to_real64 
-  !module procedure cast_nonstrict_to_complex_real32 
-  !module procedure cast_nonstrict_to_complex_real64 
-  !module procedure cast_nonstrict_to_logical 
+  module procedure cast_nonstrict_to_int32 
+  module procedure cast_nonstrict_to_int64 
+  module procedure cast_nonstrict_to_real32 
+  module procedure cast_nonstrict_to_real64 
+  module procedure cast_nonstrict_to_complex_real32 
+  module procedure cast_nonstrict_to_complex_real64 
+  module procedure cast_nonstrict_to_logical 
 end interface
 
 ! Class objects that correspond to Python standard exceptions
@@ -10109,85 +10109,6 @@ function cast_to_int32(out_value, obj) result(ierror)
   endif
 end function
 
-function cast_to_int64(out_value, obj) result(ierror)
-  integer(kind=int64), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_int(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to integer(kind=int64).")
-  endif
-end function
-
-function cast_to_real32(out_value, obj) result(ierror)
-  real(kind=real32), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_float(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to real(kind=real32).")
-  endif
-end function
-
-function cast_to_real64(out_value, obj) result(ierror)
-  real(kind=real64), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_float(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to real(kind=real64).")
-  endif
-end function
-
-function cast_to_complex_real32(out_value, obj) result(ierror)
-  complex(kind=real32), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_complex(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to complex(kind=real32).")
-  endif
-end function
-
-function cast_to_complex_real64(out_value, obj) result(ierror)
-  complex(kind=real64), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_complex(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to complex(kind=real64).")
-  endif
-end function
-
-function cast_to_logical(out_value, obj) result(ierror)
-  logical, intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_bool(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to logical.")
-  endif
-end function
-
-
 function cast_to_int32_flex(out_value, obj, strict) result(ierror)
   integer(kind=int32), intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -10198,6 +10119,27 @@ function cast_to_int32_flex(out_value, obj, strict) result(ierror)
     ierror = unbox_value(out_value, obj%py_object)
   else
     ierror = cast_to_int32(out_value, obj)
+  endif
+end function
+
+function cast_nonstrict_to_int32(out_value, obj) result(ierror)
+  integer(kind=int32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_int64(out_value, obj) result(ierror)
+  integer(kind=int64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_int(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to integer(kind=int64).")
   endif
 end function
 
@@ -10214,6 +10156,27 @@ function cast_to_int64_flex(out_value, obj, strict) result(ierror)
   endif
 end function
 
+function cast_nonstrict_to_int64(out_value, obj) result(ierror)
+  integer(kind=int64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_real32(out_value, obj) result(ierror)
+  real(kind=real32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_float(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to real(kind=real32).")
+  endif
+end function
+
 function cast_to_real32_flex(out_value, obj, strict) result(ierror)
   real(kind=real32), intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -10224,6 +10187,27 @@ function cast_to_real32_flex(out_value, obj, strict) result(ierror)
     ierror = unbox_value(out_value, obj%py_object)
   else
     ierror = cast_to_real32(out_value, obj)
+  endif
+end function
+
+function cast_nonstrict_to_real32(out_value, obj) result(ierror)
+  real(kind=real32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_real64(out_value, obj) result(ierror)
+  real(kind=real64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_float(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to real(kind=real64).")
   endif
 end function
 
@@ -10240,6 +10224,27 @@ function cast_to_real64_flex(out_value, obj, strict) result(ierror)
   endif
 end function
 
+function cast_nonstrict_to_real64(out_value, obj) result(ierror)
+  real(kind=real64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_complex_real32(out_value, obj) result(ierror)
+  complex(kind=real32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_complex(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to complex(kind=real32).")
+  endif
+end function
+
 function cast_to_complex_real32_flex(out_value, obj, strict) result(ierror)
   complex(kind=real32), intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -10250,6 +10255,27 @@ function cast_to_complex_real32_flex(out_value, obj, strict) result(ierror)
     ierror = unbox_value(out_value, obj%py_object)
   else
     ierror = cast_to_complex_real32(out_value, obj)
+  endif
+end function
+
+function cast_nonstrict_to_complex_real32(out_value, obj) result(ierror)
+  complex(kind=real32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_complex_real64(out_value, obj) result(ierror)
+  complex(kind=real64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_complex(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to complex(kind=real64).")
   endif
 end function
 
@@ -10266,6 +10292,27 @@ function cast_to_complex_real64_flex(out_value, obj, strict) result(ierror)
   endif
 end function
 
+function cast_nonstrict_to_complex_real64(out_value, obj) result(ierror)
+  complex(kind=real64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_logical(out_value, obj) result(ierror)
+  logical, intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_bool(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to logical.")
+  endif
+end function
+
 function cast_to_logical_flex(out_value, obj, strict) result(ierror)
   logical, intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -10277,6 +10324,14 @@ function cast_to_logical_flex(out_value, obj, strict) result(ierror)
   else
     ierror = cast_to_logical(out_value, obj)
   endif
+end function
+
+function cast_nonstrict_to_logical(out_value, obj) result(ierror)
+  logical, intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
 end function
 
 
@@ -10291,6 +10346,19 @@ function cast_to_chars(out_value, obj) result(ierror)
   else
     ierror = EXCEPTION_ERROR
     call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR, len=:).")
+  endif
+end function
+
+function cast_to_char_1d(out_value, obj) result(ierror)
+  character(kind=C_CHAR), dimension(:), pointer :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_str(obj) .or. is_bytes(obj) .or. is_unicode(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR), dimension(:), pointer.")
   endif
 end function
 
@@ -10315,19 +10383,6 @@ function cast_nonstrict_to_chars(out_value, obj) result(ierror)
   
   ierror = unbox_value(out_value, str_obj)
   call Py_DecRef(str_obj)
-end function
-
-function cast_to_char_1d(out_value, obj) result(ierror)
-  character(kind=C_CHAR), dimension(:), pointer :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_str(obj) .or. is_bytes(obj) .or. is_unicode(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR), dimension(:), pointer.")
-  endif
 end function
 
 ! casting scalar Fortran types into Python objects

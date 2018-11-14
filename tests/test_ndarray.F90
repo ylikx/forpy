@@ -27,6 +27,7 @@ call setUpClass
 TEST(test_ndarray_expected)
 TEST(test_check_ndarray_1d)
 TEST(test_check_ndarray_2d)
+TEST(test_compare_ndarray_2d_with_get_data)
 TEST(test_check_ndarray_3d)
 TEST(test_get_ndarray_2d)
 TEST(test_get_ndarray_wrong_order)

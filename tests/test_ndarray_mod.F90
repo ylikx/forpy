@@ -85,6 +85,32 @@ subroutine test_check_ndarray_2d()
   call nd_arr%destroy
 end subroutine
 
+subroutine test_compare_ndarray_2d_with_get_data()
+  integer :: ierror
+  type(ndarray) :: nd_arr
+  integer(kind=int64) :: arr(4,6)
+  integer(kind=int64), pointer :: arr2(:,:)
+  integer ii, jj
+  
+  do ii = 1,4
+    do jj = 1,6
+      arr(ii, jj) = int((ii-1)*6 + jj, kind=int64)
+    enddo
+  enddo
+  
+  ierror = ndarray_create(nd_arr, arr)
+  ASSERT(ierror==0)
+  
+  ierror = nd_arr%get_data(arr2)
+  ASSERT(ierror==0)
+  ASSERT(all(arr==arr2))
+  ! changes in arr must also affect arr2
+  arr(1,1)=98765
+  ASSERT(arr2(1,1)==98765)
+
+  call nd_arr%destroy
+end subroutine
+
 subroutine test_check_ndarray_3d()
   integer ierror
   type(tuple) :: args
