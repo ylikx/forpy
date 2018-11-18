@@ -114,7 +114,7 @@ subroutine test_cast_int_to_logical
   call ii%destroy
 end subroutine
 
-subroutine test_cast_real_nostrict
+subroutine test_cast_nonstrict_real
   integer ierror
   type(object) :: a_float
   integer :: f_int
@@ -123,19 +123,19 @@ subroutine test_cast_real_nostrict
   real(kind=real64), parameter :: test_real = 3.14159_real64
   ierror = cast(a_float, test_real)
   ASSERT(ierror==0)
-  ierror = cast(f_int, a_float, strict=.false.)
+  ierror = cast_nonstrict(f_int, a_float)
   ASSERT(ierror==0)
   ASSERT(f_int==3)
-  ierror = cast(f_complex, a_float, strict=.false.)
+  ierror = cast_nonstrict(f_complex, a_float)
   ASSERT(ierror==0)
   ASSERT(f_complex==test_real)
-  ierror = cast(f_logical, a_float, strict=.false.)
+  ierror = cast_nonstrict(f_logical, a_float)
   ASSERT(ierror==0)
   ASSERT(f_logical)
   call a_float%destroy
 end subroutine
 
-subroutine test_cast_complex_nostrict
+subroutine test_cast_nonstrict_complex
   integer ierror
   type(object) :: a_number
   integer(kind=int64) :: f_int
@@ -144,19 +144,19 @@ subroutine test_cast_complex_nostrict
   complex(kind=real64), parameter :: test_complex = (3.14159_real64, -6.28_real64)
   ierror = cast(a_number, test_complex)
   ASSERT(ierror==0)
-  ierror = cast(f_int, a_number, strict=.false.)
+  ierror = cast_nonstrict(f_int, a_number)
   ASSERT(ierror==EXCEPTION_ERROR)
   call err_clear
-  ierror = cast(f_real, a_number, strict=.false.)
+  ierror = cast_nonstrict(f_real, a_number)
   ASSERT(ierror==EXCEPTION_ERROR)
   call err_clear
-  ierror = cast(f_logical, a_number, strict=.false.)
+  ierror = cast_nonstrict(f_logical, a_number)
   ASSERT(ierror==0)
   ASSERT(f_logical)
   call a_number%destroy
 end subroutine
 
-subroutine test_cast_int_nostrict
+subroutine test_cast_nonstrict_int
   integer ierror
   type(object) :: a_number
   complex(kind=real32) :: f_complex
@@ -169,19 +169,19 @@ subroutine test_cast_int_nostrict
   test_complex = cmplx(test_int, kind=real32)  
   ierror = cast(a_number, test_int)
   ASSERT(ierror==0)
-  ierror = cast(f_complex, a_number, strict=.false.)
+  ierror = cast_nonstrict(f_complex, a_number)
   ASSERT(ierror==0)
   ASSERT(f_complex==test_complex)
-  ierror = cast(f_real, a_number, strict=.false.)
+  ierror = cast_nonstrict(f_real, a_number)
   ASSERT(ierror==0)
   ASSERT(f_real==test_real)
-  ierror = cast(f_logical, a_number, strict=.false.)
+  ierror = cast_nonstrict(f_logical, a_number)
   ASSERT(ierror==0)
   ASSERT(f_logical)
   call a_number%destroy
 end subroutine
 
-subroutine test_cast_list_nostrict
+subroutine test_cast_nonstrict_list
   integer ierror
   type(list) :: a_list
   integer :: f_int
@@ -190,23 +190,23 @@ subroutine test_cast_list_nostrict
   logical :: f_logical
   ierror = list_create(a_list)
   ASSERT(ierror==0)
-  ierror = cast(f_int, a_list, strict=.false.)
+  ierror = cast_nonstrict(f_int, a_list)
   ASSERT(ierror==EXCEPTION_ERROR)
   call err_clear
-  ierror = cast(f_complex, a_list, strict=.false.)
+  ierror = cast_nonstrict(f_complex, a_list)
   ASSERT(ierror==EXCEPTION_ERROR)
   call err_clear
-  ierror = cast(f_real, a_list, strict=.false.)
+  ierror = cast_nonstrict(f_real, a_list)
   ASSERT(ierror==EXCEPTION_ERROR)
   call err_clear
-  ierror = cast(f_logical, a_list, strict=.false.)
+  ierror = cast_nonstrict(f_logical, a_list)
   ASSERT(ierror==0)
   ! [] has truth value 'False'
   ASSERT(.not. f_logical)
   call a_list%destroy
 end subroutine
 
-subroutine test_nonstrict_cast_numeric()
+subroutine test_cast_nonstrict_numeric()
   ! Testing objects that can be converted to numbers
   ! because they have magic methods, such as __complex__ 
   integer :: ierror
@@ -220,15 +220,15 @@ subroutine test_nonstrict_cast_numeric()
   ierror = call_py(obj, test_mod, "ConvertibleNumber")
   ASSERT(ierror==0)
   
-  ierror = cast(a_complex, obj, strict=.false.)
+  ierror = cast_nonstrict(a_complex, obj)
   ASSERT(ierror==0)
   ASSERT(a_complex==SOLUTION_COMPLEX)
   
-  ierror = cast(a_real, obj, strict=.false.)
+  ierror = cast_nonstrict(a_real, obj)
   ASSERT(ierror==0)
   ASSERT(a_real==-12.3_C_DOUBLE)
   
-  ierror = cast(a_int, obj, strict=.false.)
+  ierror = cast_nonstrict(a_int, obj)
   ASSERT(ierror==0)
   ASSERT(a_int==-12_int64)
   

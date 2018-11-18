@@ -31,16 +31,17 @@ Furthermore you can write Python (extension) modules in Fortran ("Fortran in Pyt
 
 ## Basics
 
-- [README](https://www.github.com/ylikx/forpy/README.md)
-- [[forpy_initialize]]
+- Start here: [README](https://www.github.com/ylikx/forpy/README.md)
+- Initializing forpy: [[forpy_initialize]]
 - Lists: [[list]], [[list_create]]
 - Tuples: [[tuple]], [[tuple_create]]
 - Dictionaries: [[dict]], [[dict_create]]
 - Generic Python object: [[object]]
-- Converting between Fortran and Python types: [[cast]]
+- Converting between Fortran and Python types: [[cast]], [[cast_nonstrict]]
 - Calling Python functions: [[call_py]], [[call_py_noret]]
 - Importing Python modules: [[import_py]]
 - Error handling, debugging: [[err_print]], [[exception_matches]], [[err_clear]], [[print_py]]
+- Assignment between Python objects: [[assign_py]]
 
 ## Arrays
 

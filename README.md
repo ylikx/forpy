@@ -5,8 +5,8 @@ Forpy allows you to use Python features in Fortran ("embedding Python in Fortran
 It provides datastructures such as list, dict, tuple and interoperability
 of arrays using numpy.
 With forpy you can even import Python modules in Fortran. Simply use your own or third-party Python modules
-for tasks that you don't want to do in Fortran. For example: plot with matplotlib or use scientific
-functions from scipy.
+for tasks that you can easily do in Python. For example: plot with matplotlib or use scientific
+functions from scipy or numpy.
 
 Forpy also works to other way around: You can write Python modules entirely in Fortran (extending Python with Fortran - "Fortran in Python").
 
@@ -494,6 +494,45 @@ program matplotlib_example
     call plt%destroy
   end subroutine
 
+end program
+```
+
+## Converting between types: `cast` and `cast_nonstrict`
+
+As we have seen in previous sections you can convert between types with
+the `cast` interface.
+The `cast` function has a rather strict behaviour, when casting between
+types: For example it gives an error, when you try to convert a 
+Python float to an integer or a list to a tuple.
+Use `cast_nonstrict` if you need more flexibility: it does these type
+conversion when possible. For example:
+
+```Fortran
+program cast_nonstrict_demo
+use forpy_mod
+  implicit none
+
+  type(object) :: obj
+  character(len=:), allocatable :: fstr
+  integer :: an_int
+  integer :: ierror
+
+  ierror = forpy_initialize()
+  ierror = cast(obj, 3.14d0)           !creates a Python float
+
+  ierror = cast(an_int, obj)           !FAIL: strict cast float->integer
+  call err_print                       !show and clear error
+  ierror = cast(fstr, obj)             !FAIL: obj is a number, not a string
+  call err_print                       !show and clear error
+
+  ierror = cast_nonstrict(an_int, obj) !OK, truncates float (an_int = 3)
+  ierror = cast_nonstrict(fstr, obj)   !OK, result is string "3.14"
+
+  write(*,*) an_int
+  write(*,*) fstr
+
+  call obj%destroy
+  call forpy_finalize
 end program
 ```
 

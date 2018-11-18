@@ -1172,7 +1172,7 @@ end interface
 !> Casts/Transforms between Fortran and Python datatypes
 !>
 !> Result is 1st argument to cast, object/scalar to cast 2nd argument
-!> Use to cast/transform a Python [[object]] into a Fortran values
+!> Use to cast/transform a Python [[object]] into a Fortran value
 !> Use to cast/transform Fortran values into a Python [[object]]
 !> and to cast an unspecific Python [[object]] into more specific objects, such
 !> as [[list]], [[tuple]], [[dict]]
@@ -1182,7 +1182,7 @@ end interface
 !>
 !> For casting to numerical Fortran scalars, there is an optional 3rd argument "strict"
 !> for cast: if strict=.false. it will try to convert numerical values to the requested
-!> datatype (default: strict=.true.)
+!> datatype (default: strict=.true.). This is the same as using [[cast_nonstrict]].
 interface cast
   module procedure cast_to_list
   module procedure cast_to_dict
@@ -1201,7 +1201,24 @@ interface cast
 #:endfor
 end interface
 
-!> TODO
+!> Non-strict casts/transforms between Fortran and Python datatypes
+!>
+!> Result is 1st argument to cast, 2nd argument object/scalar to cast
+!>
+!> In contrast to [[cast]], cast_nonstrict tries to convert to the type specified
+!> by the 1st argument even when there is no exact correspondence of types.
+!> Non-strict cast might lead to loss of information (e. g. when casting
+!> a float to an integer) or might need additional memory and time for 
+!> making a copy (e. g. casting a list to a tuple) 
+!>
+!> Use to cast/transform a Python [[object]] into a Fortran value
+!> and to cast an unspecific Python [[object]] into more specific objects, such
+!> as [[list]] or [[tuple]], converting between types when necessary.
+!> Fortran values can be scalars or character strings.
+!> 
+!> Can be used to get the string representation of a Python object
+!> as a Fortran character string.
+!> Python strings are encoded as UTF-8
 interface cast_nonstrict
   module procedure cast_nonstrict_to_list
   module procedure cast_nonstrict_to_tuple
