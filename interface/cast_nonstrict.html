@@ -10,7 +10,7 @@
     <meta name="author" content="Elias Rabel" >
     <link rel="icon" href="../favicon.png">
 
-    <title>ndarray_create_zeros &ndash; Forpy</title>
+    <title>cast_nonstrict &ndash; Forpy</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -108,7 +108,7 @@
     
   
   <div class="row">
-    <h1>ndarray_create_zeros
+    <h1>cast_nonstrict
 	 <small>Interface</small>
     
     </h1>
@@ -126,7 +126,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
 	  data-placement="bottom" data-html="true"
-	  title="<p> 1.6% of total for procedures.</p>Including implementation: 90 statements, 24.1% of total for procedures.">6 statements</a>
+	  title="<p> 3.2% of total for procedures.</p>Including implementation: 95 statements, 25.4% of total for procedures.">12 statements</a>
      </li> 
      
      
@@ -139,7 +139,7 @@
   
      <li><a href='../module/forpy_mod.html'>forpy_mod</a></li>
   
-     <li class="active">ndarray_create_zeros</li>
+     <li class="active">cast_nonstrict</li>
   </ol>
 </div>
 </div>
@@ -181,13 +181,25 @@
   <div id="modprocs-0" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../interface/ndarray_create_zeros.html#moduleprocedure-ndarray_create_zeros_aint32">ndarray_create_zeros_aint32</a>
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_list">cast_nonstrict_to_list</a>
       
-      <a class="list-group-item" href="../interface/ndarray_create_zeros.html#moduleprocedure-ndarray_create_zeros_aint64">ndarray_create_zeros_aint64</a>
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_tuple">cast_nonstrict_to_tuple</a>
       
-      <a class="list-group-item" href="../interface/ndarray_create_zeros.html#moduleprocedure-ndarray_create_zeros_int32">ndarray_create_zeros_int32</a>
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_chars">cast_nonstrict_to_chars</a>
       
-      <a class="list-group-item" href="../interface/ndarray_create_zeros.html#moduleprocedure-ndarray_create_zeros_int64">ndarray_create_zeros_int64</a>
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_int32">cast_nonstrict_to_int32</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_int64">cast_nonstrict_to_int64</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_real32">cast_nonstrict_to_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_real64">cast_nonstrict_to_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_complex_real32">cast_nonstrict_to_complex_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_complex_real64">cast_nonstrict_to_complex_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_logical">cast_nonstrict_to_logical</a>
       
     </div>
   </div>
@@ -299,8 +311,21 @@
     </div>
     
     <div class="col-md-9" id='text'>
-      <h2>public interface ndarray_create_zeros</h2>
-	 <p>Creates a ndarray of zeroes.</p>
+      <h2>public interface cast_nonstrict</h2>
+	 <p>Non-strict casts/transforms between Fortran and Python datatypes</p>
+<p>Result is 1st argument to cast, 2nd argument object/scalar to cast</p>
+<p>In contrast to <a href="../interface/cast.html">cast</a>, cast_nonstrict tries to convert to the type specified
+ by the 1st argument even when there is no exact correspondence of types.
+ Non-strict cast might lead to loss of information (e. g. when casting
+ a float to an integer) or might need additional memory and time for 
+ making a copy (e. g. casting a list to a tuple) </p>
+<p>Use to cast/transform a Python <a href="../type/object.html">object</a> into a Fortran value
+ and to cast an unspecific Python <a href="../type/object.html">object</a> into more specific objects, such
+ as <a href="../type/list.html">list</a> or <a href="../type/tuple.html">tuple</a>, converting between types when necessary.
+ Fortran values can be scalars or character strings.</p>
+<p>Can be used to get the string representation of a Python object
+ as a Fortran character string.
+ Python strings are encoded as UTF-8</p>
      
      
     <br>
@@ -331,13 +356,25 @@
   <div id="modprocs-1" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../interface/ndarray_create_zeros.html#moduleprocedure-ndarray_create_zeros_aint32">ndarray_create_zeros_aint32</a>
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_list">cast_nonstrict_to_list</a>
       
-      <a class="list-group-item" href="../interface/ndarray_create_zeros.html#moduleprocedure-ndarray_create_zeros_aint64">ndarray_create_zeros_aint64</a>
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_tuple">cast_nonstrict_to_tuple</a>
       
-      <a class="list-group-item" href="../interface/ndarray_create_zeros.html#moduleprocedure-ndarray_create_zeros_int32">ndarray_create_zeros_int32</a>
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_chars">cast_nonstrict_to_chars</a>
       
-      <a class="list-group-item" href="../interface/ndarray_create_zeros.html#moduleprocedure-ndarray_create_zeros_int64">ndarray_create_zeros_int64</a>
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_int32">cast_nonstrict_to_int32</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_int64">cast_nonstrict_to_int64</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_real32">cast_nonstrict_to_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_real64">cast_nonstrict_to_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_complex_real32">cast_nonstrict_to_complex_real32</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_complex_real64">cast_nonstrict_to_complex_real64</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html#moduleprocedure-cast_nonstrict_to_logical">cast_nonstrict_to_logical</a>
       
     </div>
   </div>
@@ -357,8 +394,8 @@
 	 
     
   <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-ndarray_create_zeros_aint32"></span><h3>
-private function ndarray_create_zeros_aint32(array, a_shape, dtype, order) result(ierror)
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_list"></span><h3>
+private function cast_nonstrict_to_list(li, obj) result(ierror)
     
     
 	 
@@ -386,14 +423,224 @@ private function ndarray_create_zeros_aint32(array, a_shape, dtype, order) resul
   
 <tr>
   
-  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td><span class="anchor" ></span>type(<a href='../type/list.html'>list</a>),</td>
   <td>intent(out)</td>
   <td></td>
   
   <td></td><td>::</td>
-  <td><strong>array</strong></td><td><p>The resulting ndarray.</p></td>
+  <td><strong>li</strong></td><td></td>
   
 </tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_tuple"></span><h3>
+private function cast_nonstrict_to_tuple(tu, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/tuple.html'>tuple</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>tu</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_chars"></span><h3>
+private function cast_nonstrict_to_chars(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>character(kind=C_CHAR,len=:),</td>
+  <td>intent(out),</td>
+  <td></td>
+  
+  <td>allocatable</td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_int32"></span><h3>
+private function cast_nonstrict_to_int32(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
 
   
   
@@ -402,11 +649,11 @@ private function ndarray_create_zeros_aint32(array, a_shape, dtype, order) resul
 <tr>
   
   <td><span class="anchor" ></span>integer(kind=int32),</td>
-  <td>intent(in),</td>
+  <td>intent(out)</td>
   <td></td>
   
-  <td>dimension(:)</td><td>::</td>
-  <td><strong>a_shape</strong></td><td><p>Shape of ndarray to create.</p></td>
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
   
 </tr>
 
@@ -416,27 +663,12 @@ private function ndarray_create_zeros_aint32(array, a_shape, dtype, order) resul
   
 <tr>
   
-  <td><span class="anchor" ></span>character(kind=C_CHAR,len=*),</td>
-  <td>intent(in),</td>
-  <td>optional</td>
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
   
   <td></td><td>::</td>
-  <td><strong>dtype</strong></td><td><p>numpy.dtype of ndarray (default: 'float')</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" ></span>character(kind=C_CHAR),</td>
-  <td>intent(in),</td>
-  <td>optional</td>
-  
-  <td></td><td>::</td>
-  <td><strong>order</strong></td><td><p>Storage order: 'F' (Fortran) or 'C' (default: 'F')</p></td>
+  <td><strong>obj</strong></td><td></td>
   
 </tr>
 
@@ -453,7 +685,7 @@ private function ndarray_create_zeros_aint32(array, a_shape, dtype, order) resul
   
      <h4>Return Value <small>integer(kind=C_INT)
   </small></h4>
-  <p>Error code, 0 on success</p>
+  
     
 
   </div>
@@ -462,8 +694,8 @@ private function ndarray_create_zeros_aint32(array, a_shape, dtype, order) resul
  	 
     
   <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-ndarray_create_zeros_aint64"></span><h3>
-private function ndarray_create_zeros_aint64(array, a_shape, dtype, order) result(ierror)
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_int64"></span><h3>
+private function cast_nonstrict_to_int64(out_value, obj) result(ierror)
     
     
 	 
@@ -484,21 +716,6 @@ private function ndarray_create_zeros_aint64(array, a_shape, dtype, order) resul
 
 
 <tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
-  <td>intent(out)</td>
-  <td></td>
-  
-  <td></td><td>::</td>
-  <td><strong>array</strong></td><td><p>The resulting ndarray.</p></td>
-  
-</tr>
 
   
   
@@ -507,11 +724,11 @@ private function ndarray_create_zeros_aint64(array, a_shape, dtype, order) resul
 <tr>
   
   <td><span class="anchor" ></span>integer(kind=int64),</td>
-  <td>intent(in),</td>
+  <td>intent(out)</td>
   <td></td>
   
-  <td>dimension(:)</td><td>::</td>
-  <td><strong>a_shape</strong></td><td><p>Shape of ndarray to create.</p></td>
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
   
 </tr>
 
@@ -521,27 +738,12 @@ private function ndarray_create_zeros_aint64(array, a_shape, dtype, order) resul
   
 <tr>
   
-  <td><span class="anchor" ></span>character(kind=C_CHAR,len=*),</td>
-  <td>intent(in),</td>
-  <td>optional</td>
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
   
   <td></td><td>::</td>
-  <td><strong>dtype</strong></td><td><p>numpy.dtype of ndarray (default: 'float')</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" ></span>character(kind=C_CHAR),</td>
-  <td>intent(in),</td>
-  <td>optional</td>
-  
-  <td></td><td>::</td>
-  <td><strong>order</strong></td><td><p>Storage order: 'F' (Fortran) or 'C' (default: 'F')</p></td>
+  <td><strong>obj</strong></td><td></td>
   
 </tr>
 
@@ -558,7 +760,7 @@ private function ndarray_create_zeros_aint64(array, a_shape, dtype, order) resul
   
      <h4>Return Value <small>integer(kind=C_INT)
   </small></h4>
-  <p>Error code, 0 on success</p>
+  
     
 
   </div>
@@ -567,8 +769,8 @@ private function ndarray_create_zeros_aint64(array, a_shape, dtype, order) resul
  	 
     
   <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-ndarray_create_zeros_int32"></span><h3>
-private function ndarray_create_zeros_int32(array, length, dtype, order) result(ierror)
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_real32"></span><h3>
+private function cast_nonstrict_to_real32(out_value, obj) result(ierror)
     
     
 	 
@@ -596,12 +798,12 @@ private function ndarray_create_zeros_int32(array, length, dtype, order) result(
   
 <tr>
   
-  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td><span class="anchor" ></span>real(kind=real32),</td>
   <td>intent(out)</td>
   <td></td>
   
   <td></td><td>::</td>
-  <td><strong>array</strong></td><td><p>The resulting one dimensional ndarray.</p></td>
+  <td><strong>out_value</strong></td><td></td>
   
 </tr>
 
@@ -611,42 +813,12 @@ private function ndarray_create_zeros_int32(array, length, dtype, order) result(
   
 <tr>
   
-  <td><span class="anchor" ></span>integer(kind=int32),</td>
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
   <td>intent(in)</td>
   <td></td>
   
   <td></td><td>::</td>
-  <td><strong>length</strong></td><td><p>Number of elements in ndarray</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" ></span>character(kind=C_CHAR,len=*),</td>
-  <td>intent(in),</td>
-  <td>optional</td>
-  
-  <td></td><td>::</td>
-  <td><strong>dtype</strong></td><td><p>numpy.dtype of ndarray (default: 'float')</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" ></span>character(kind=C_CHAR),</td>
-  <td>intent(in),</td>
-  <td>optional</td>
-  
-  <td></td><td>::</td>
-  <td><strong>order</strong></td><td><p>Storage order: 'F' (Fortran) or 'C' (default: 'F'). In case of 1D array not relevant.</p></td>
+  <td><strong>obj</strong></td><td></td>
   
 </tr>
 
@@ -663,7 +835,7 @@ private function ndarray_create_zeros_int32(array, length, dtype, order) result(
   
      <h4>Return Value <small>integer(kind=C_INT)
   </small></h4>
-  <p>Error code, 0 on success</p>
+  
     
 
   </div>
@@ -672,8 +844,8 @@ private function ndarray_create_zeros_int32(array, length, dtype, order) result(
  	 
     
   <div class="panel panel-default">
-  <div class="panel-heading codesum"><span class="anchor" id="proc-ndarray_create_zeros_int64"></span><h3>
-private function ndarray_create_zeros_int64(array, length, dtype, order) result(ierror)
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_real64"></span><h3>
+private function cast_nonstrict_to_real64(out_value, obj) result(ierror)
     
     
 	 
@@ -701,12 +873,12 @@ private function ndarray_create_zeros_int64(array, length, dtype, order) result(
   
 <tr>
   
-  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td><span class="anchor" ></span>real(kind=real64),</td>
   <td>intent(out)</td>
   <td></td>
   
   <td></td><td>::</td>
-  <td><strong>array</strong></td><td><p>The resulting one dimensional ndarray.</p></td>
+  <td><strong>out_value</strong></td><td></td>
   
 </tr>
 
@@ -716,42 +888,12 @@ private function ndarray_create_zeros_int64(array, length, dtype, order) result(
   
 <tr>
   
-  <td><span class="anchor" ></span>integer(kind=int64),</td>
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
   <td>intent(in)</td>
   <td></td>
   
   <td></td><td>::</td>
-  <td><strong>length</strong></td><td><p>Number of elements in ndarray</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" ></span>character(kind=C_CHAR,len=*),</td>
-  <td>intent(in),</td>
-  <td>optional</td>
-  
-  <td></td><td>::</td>
-  <td><strong>dtype</strong></td><td><p>numpy.dtype of ndarray (default: 'float')</p></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" ></span>character(kind=C_CHAR),</td>
-  <td>intent(in),</td>
-  <td>optional</td>
-  
-  <td></td><td>::</td>
-  <td><strong>order</strong></td><td><p>Storage order: 'F' (Fortran) or 'C' (default: 'F'). In case of 1D array not relevant.</p></td>
+  <td><strong>obj</strong></td><td></td>
   
 </tr>
 
@@ -768,7 +910,232 @@ private function ndarray_create_zeros_int64(array, length, dtype, order) result(
   
      <h4>Return Value <small>integer(kind=C_INT)
   </small></h4>
-  <p>Error code, 0 on success</p>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_complex_real32"></span><h3>
+private function cast_nonstrict_to_complex_real32(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real32),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_complex_real64"></span><h3>
+private function cast_nonstrict_to_complex_real64(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real64),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_nonstrict_to_logical"></span><h3>
+private function cast_nonstrict_to_logical(out_value, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>logical,</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>out_value</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
     
 
   </div>

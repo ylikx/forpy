@@ -49,7 +49,7 @@ NoneType, ndarray, Sequence, MutableSequence, ImmutableSequence, Mapping, &
 tuple_create, list_create, dict_create, bytes_create, str_create, &
 unicode_create, NoneType_create, ndarray_create, ndarray_create_empty, &
 ndarray_create_zeros, ndarray_create_ones, import_py, call_py, call_py_noret, &
-assign_py, cast, PythonMethodTable, PythonModule, forpy_initialize, &
+assign_py, cast, cast_nonstrict, PythonMethodTable, PythonModule, forpy_initialize, &
 forpy_initialize_ext, forpy_finalize, is_long, is_list, is_tuple, is_bytes, &
 is_dict, is_float, is_complex, is_bool, is_unicode, is_int, is_str, is_none, &
 is_null, is_ndarray, exception_matches, err_clear, err_print, have_exception, &
@@ -65,7 +65,7 @@ integer(kind=C_INT), public, parameter :: METH_KEYWORDS = 2_C_INT
 integer(kind=C_INT), public, parameter :: METH_NOARGS = 4_C_INT
 integer(kind=C_INT), public, parameter :: METH_O = 8_C_INT
 
-integer, public, parameter :: PY_SSIZE_T_KIND = C_INTPTR_T !TODO: test system dependence
+integer, public, parameter :: PY_SSIZE_T_KIND = C_INTPTR_T
 
 PRIVATE
 
@@ -196,6 +196,11 @@ type, bind(c) :: PyTypeObject
     ! we should be fine without it, since all we actually need is the offset
     ! of tp_flags and we are not using arrays of PyTypeObjects
 
+end type
+
+type, bind(c) :: Py_complex
+  real(kind=C_DOUBLE) :: real_part
+  real(kind=C_DOUBLE) :: imag_part
 end type
 
 type, bind(c) :: PyMethodDef
@@ -351,6 +356,13 @@ interface
     type(c_ptr), value :: o
     integer(kind=C_INT) :: r
   end function
+  
+  !PyObject* PyObject_Str(PyObject *o)
+  function PyObject_Str(o) bind(c, name="PyObject_Str") result(r)
+    import c_ptr
+    type(c_ptr), value :: o
+    type(c_ptr) :: r
+  end function
 
   !int PySequence_SetItem(PyObject *o, Py_ssize_t i, PyObject *v)
   function PySequence_SetItem(o, i, v) bind(c, name="PySequence_SetItem") result(r)
@@ -411,17 +423,11 @@ interface
     real(kind=C_DOUBLE), value :: re, im
     type(c_ptr) :: r
   end function
-  
-  function PyComplex_RealAsDouble(obj) bind(c, name="PyComplex_RealAsDouble") result(r)
-    import c_ptr, C_DOUBLE
+
+  function PyComplex_AsCComplex(obj) bind(c, name="PyComplex_AsCComplex") result(r)
+    import c_ptr, Py_complex
     type(c_ptr), value :: obj
-    real(kind=C_DOUBLE) :: r
-  end function
-  
-  function PyComplex_ImagAsDouble(obj) bind(c, name="PyComplex_ImagAsDouble") result(r)
-    import c_ptr, C_DOUBLE
-    type(c_ptr), value :: obj
-    real(kind=C_DOUBLE) :: r
+    type(Py_complex) :: r
   end function
 
   function PyErr_Occurred() bind(c, name="PyErr_Occurred") result(r)
@@ -1668,7 +1674,7 @@ end interface
 !> Casts/Transforms between Fortran and Python datatypes
 !>
 !> Result is 1st argument to cast, object/scalar to cast 2nd argument
-!> Use to cast/transform a Python [[object]] into a Fortran values
+!> Use to cast/transform a Python [[object]] into a Fortran value
 !> Use to cast/transform Fortran values into a Python [[object]]
 !> and to cast an unspecific Python [[object]] into more specific objects, such
 !> as [[list]], [[tuple]], [[dict]]
@@ -1678,13 +1684,14 @@ end interface
 !>
 !> For casting to numerical Fortran scalars, there is an optional 3rd argument "strict"
 !> for cast: if strict=.false. it will try to convert numerical values to the requested
-!> datatype (default: strict=.true.)
+!> datatype (default: strict=.true.). This is the same as using [[cast_nonstrict]].
 interface cast
   module procedure cast_to_list
   module procedure cast_to_dict
   module procedure cast_to_tuple
   module procedure cast_to_NoneType
   module procedure cast_to_ndarray
+  module procedure cast_to_object
   
   module procedure cast_to_char_1d
   module procedure cast_to_chars
@@ -1710,6 +1717,42 @@ interface cast
   module procedure cast_to_logical
   module procedure cast_to_logical_flex
   module procedure cast_from_logical  
+end interface
+
+!> Non-strict casts/transforms between Fortran and Python datatypes
+!>
+!> Result is 1st argument to cast, 2nd argument object/scalar to cast
+!>
+!> In contrast to [[cast]], cast_nonstrict tries to convert to the type specified
+!> by the 1st argument even when there is no exact correspondence of types.
+!> Non-strict cast might lead to loss of information (e. g. when casting
+!> a float to an integer) or might need additional memory and time for 
+!> making a copy (e. g. casting a list to a tuple) 
+!>
+!> Use to cast/transform a Python [[object]] into a Fortran value
+!> and to cast an unspecific Python [[object]] into more specific objects, such
+!> as [[list]] or [[tuple]], converting between types when necessary.
+!> Fortran values can be scalars or character strings.
+!> 
+!> Can be used to get the string representation of a Python object
+!> as a Fortran character string.
+!> Python strings are encoded as UTF-8
+interface cast_nonstrict
+  module procedure cast_nonstrict_to_list
+  module procedure cast_nonstrict_to_tuple
+  
+  ! no cast_nonstrict_to_char_1d, because one can 
+  ! not always return a pointer to a character buffer
+  
+  module procedure cast_nonstrict_to_chars
+  
+  module procedure cast_nonstrict_to_int32 
+  module procedure cast_nonstrict_to_int64 
+  module procedure cast_nonstrict_to_real32 
+  module procedure cast_nonstrict_to_real64 
+  module procedure cast_nonstrict_to_complex_real32 
+  module procedure cast_nonstrict_to_complex_real64 
+  module procedure cast_nonstrict_to_logical 
 end interface
 
 ! Class objects that correspond to Python standard exceptions
@@ -1838,8 +1881,7 @@ function forpy_initialize(use_numpy) result(ierror)
   ierror = forpy_initialize_helper(.false., numpy_flag)
 end function
 
-!> Use this function to initialize forpy instead of forpy_initialize, when you
-!> are writing a Python extension.
+!> Deprecated: use forpy_initialize instead
 function forpy_initialize_ext(use_numpy) result(ierror)
   !> Set to .false., if you do not need the array features of forpy powered by numpy. (Default: .true.)
   logical, optional, intent(in) :: use_numpy
@@ -1860,6 +1902,8 @@ function forpy_initialize_helper(is_extension, use_numpy) result(ierror)
   logical, intent(in) :: use_numpy
   integer(kind=C_INT) :: ierror
   
+  ! might remove this in the future, since it is required that
+  ! calling Py_Initialize multiple times is safe
   if (.not. is_extension) then
     call Py_Initialize()
   endif
@@ -8521,12 +8565,12 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
     return
   endif
 
-  ! raises BufferError exception if array is not contiguous
+  ! raises BufferError exception if array is not contiguous, Python 2: ValueError
   ierror = PyObject_GetBuffer(mem_view, buffer, 156_C_INT) !flags (PyBUF_FORMAT | PyBUF_ANY_CONTIGUOUS) - we need the format info and PyBUF_FORMAT alone gives error
   call Py_Decref(mem_view)
 
   if (ierror /= 0) then
-    if (exception_matches(BufferError)) then ! make error message more informative
+    if (exception_matches(BufferError) .or. exception_matches(ValueError)) then ! make error message more informative
       call err_clear
       call raise_exception(BufferError, "forpy: ndarray with non-contiguous data. Fortran or C-order needed: try to copy array")
     endif
@@ -9796,15 +9840,15 @@ function unbox_value_complex_real32(the_value, obj) result(ierror)
   type(c_ptr), intent(in) :: obj
   integer(kind=C_INT) :: ierror
 
-  real(kind=C_DOUBLE) :: tmp_re, tmp_im
+  type(Py_complex) :: tmp
   type(c_ptr) :: err_obj
   
   ierror = 0_C_INT
-  tmp_re = PyComplex_RealAsDouble(obj)
-  tmp_im = PyComplex_ImagAsDouble(obj)  ! PyComplex_ImagAsDouble seems to always succeed
-  the_value = cmplx(tmp_re, tmp_im, kind=real32)
+  tmp = PyComplex_AsCComplex(obj) !this handles objects with __complex__ method correctly
   
-  if (tmp_re == -1.0_C_DOUBLE) then
+  the_value = cmplx(tmp%real_part, tmp%imag_part, kind=real32)
+  
+  if (tmp%real_part == -1.0_C_DOUBLE) then
     err_obj = PyErr_Occurred()
     if (c_associated(err_obj)) then
       ierror = EXCEPTION_ERROR
@@ -9819,15 +9863,15 @@ function unbox_value_complex_real64(the_value, obj) result(ierror)
   type(c_ptr), intent(in) :: obj
   integer(kind=C_INT) :: ierror
 
-  real(kind=C_DOUBLE) :: tmp_re, tmp_im
+  type(Py_complex) :: tmp
   type(c_ptr) :: err_obj
   
   ierror = 0_C_INT
-  tmp_re = PyComplex_RealAsDouble(obj)
-  tmp_im = PyComplex_ImagAsDouble(obj)  ! PyComplex_ImagAsDouble seems to always succeed
-  the_value = cmplx(tmp_re, tmp_im, kind=real64)
+  tmp = PyComplex_AsCComplex(obj) !this handles objects with __complex__ method correctly
   
-  if (tmp_re == -1.0_C_DOUBLE) then
+  the_value = cmplx(tmp%real_part, tmp%imag_part, kind=real64)
+  
+  if (tmp%real_part == -1.0_C_DOUBLE) then
     err_obj = PyErr_Occurred()
     if (c_associated(err_obj)) then
       ierror = EXCEPTION_ERROR
@@ -9965,6 +10009,20 @@ function cast_to_list(li, obj) result(ierror)
   endif
 end function
 
+function cast_nonstrict_to_list(li, obj) result(ierror)
+  type(list), intent(out) :: li
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_list(obj)) then
+    ierror = 0_C_INT
+    li%py_object = obj%py_object
+    call Py_IncRef(obj%py_object)
+  else
+    ierror = list_create(li, obj)
+  endif
+end function
+
 function cast_to_dict(di, obj) result(ierror)
   type(dict), intent(out) :: di
   class(object), intent(in) :: obj
@@ -9994,6 +10052,20 @@ function cast_to_tuple(tu, obj) result(ierror)
     tu%py_object = C_NULL_PTR
     ierror = EXCEPTION_ERROR
     call raise_exception(TypeError, "forpy: Could not cast to tuple.")
+  endif
+end function
+
+function cast_nonstrict_to_tuple(tu, obj) result(ierror)
+  type(tuple), intent(out) :: tu
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_tuple(obj)) then
+    ierror = 0_C_INT
+    tu%py_object = obj%py_object
+    call Py_IncRef(obj%py_object)
+  else
+    ierror = tuple_create(tu, obj)
   endif
 end function
 
@@ -10029,6 +10101,16 @@ function cast_to_ndarray(nd, obj) result(ierror)
   endif
 end function
 
+function cast_to_object(plain_obj, obj) result(ierror)
+  type(object), intent(out) :: plain_obj
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = 0_C_INT
+  plain_obj%py_object = obj%py_object
+  call Py_IncRef(obj%py_object)
+end function
+
 ! casts to scalar fortran types
 
 function cast_to_int32(out_value, obj) result(ierror)
@@ -10044,85 +10126,6 @@ function cast_to_int32(out_value, obj) result(ierror)
   endif
 end function
 
-function cast_to_int64(out_value, obj) result(ierror)
-  integer(kind=int64), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_int(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to integer(kind=int64).")
-  endif
-end function
-
-function cast_to_real32(out_value, obj) result(ierror)
-  real(kind=real32), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_float(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to real(kind=real32).")
-  endif
-end function
-
-function cast_to_real64(out_value, obj) result(ierror)
-  real(kind=real64), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_float(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to real(kind=real64).")
-  endif
-end function
-
-function cast_to_complex_real32(out_value, obj) result(ierror)
-  complex(kind=real32), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_complex(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to complex(kind=real32).")
-  endif
-end function
-
-function cast_to_complex_real64(out_value, obj) result(ierror)
-  complex(kind=real64), intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_complex(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to complex(kind=real64).")
-  endif
-end function
-
-function cast_to_logical(out_value, obj) result(ierror)
-  logical, intent(out) :: out_value
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_bool(obj)) then
-    ierror = unbox_value(out_value, obj%py_object)
-  else
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to logical.")
-  endif
-end function
-
-
 function cast_to_int32_flex(out_value, obj, strict) result(ierror)
   integer(kind=int32), intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -10133,6 +10136,27 @@ function cast_to_int32_flex(out_value, obj, strict) result(ierror)
     ierror = unbox_value(out_value, obj%py_object)
   else
     ierror = cast_to_int32(out_value, obj)
+  endif
+end function
+
+function cast_nonstrict_to_int32(out_value, obj) result(ierror)
+  integer(kind=int32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_int64(out_value, obj) result(ierror)
+  integer(kind=int64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_int(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to integer(kind=int64).")
   endif
 end function
 
@@ -10149,6 +10173,27 @@ function cast_to_int64_flex(out_value, obj, strict) result(ierror)
   endif
 end function
 
+function cast_nonstrict_to_int64(out_value, obj) result(ierror)
+  integer(kind=int64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_real32(out_value, obj) result(ierror)
+  real(kind=real32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_float(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to real(kind=real32).")
+  endif
+end function
+
 function cast_to_real32_flex(out_value, obj, strict) result(ierror)
   real(kind=real32), intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -10159,6 +10204,27 @@ function cast_to_real32_flex(out_value, obj, strict) result(ierror)
     ierror = unbox_value(out_value, obj%py_object)
   else
     ierror = cast_to_real32(out_value, obj)
+  endif
+end function
+
+function cast_nonstrict_to_real32(out_value, obj) result(ierror)
+  real(kind=real32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_real64(out_value, obj) result(ierror)
+  real(kind=real64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_float(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to real(kind=real64).")
   endif
 end function
 
@@ -10175,6 +10241,27 @@ function cast_to_real64_flex(out_value, obj, strict) result(ierror)
   endif
 end function
 
+function cast_nonstrict_to_real64(out_value, obj) result(ierror)
+  real(kind=real64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_complex_real32(out_value, obj) result(ierror)
+  complex(kind=real32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_complex(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to complex(kind=real32).")
+  endif
+end function
+
 function cast_to_complex_real32_flex(out_value, obj, strict) result(ierror)
   complex(kind=real32), intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -10185,6 +10272,27 @@ function cast_to_complex_real32_flex(out_value, obj, strict) result(ierror)
     ierror = unbox_value(out_value, obj%py_object)
   else
     ierror = cast_to_complex_real32(out_value, obj)
+  endif
+end function
+
+function cast_nonstrict_to_complex_real32(out_value, obj) result(ierror)
+  complex(kind=real32), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_complex_real64(out_value, obj) result(ierror)
+  complex(kind=real64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_complex(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to complex(kind=real64).")
   endif
 end function
 
@@ -10201,6 +10309,27 @@ function cast_to_complex_real64_flex(out_value, obj, strict) result(ierror)
   endif
 end function
 
+function cast_nonstrict_to_complex_real64(out_value, obj) result(ierror)
+  complex(kind=real64), intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
+end function
+
+function cast_to_logical(out_value, obj) result(ierror)
+  logical, intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_bool(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+  else
+    ierror = EXCEPTION_ERROR
+    call raise_exception(TypeError, "forpy: Could not cast to logical.")
+  endif
+end function
+
 function cast_to_logical_flex(out_value, obj, strict) result(ierror)
   logical, intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -10212,6 +10341,14 @@ function cast_to_logical_flex(out_value, obj, strict) result(ierror)
   else
     ierror = cast_to_logical(out_value, obj)
   endif
+end function
+
+function cast_nonstrict_to_logical(out_value, obj) result(ierror)
+  logical, intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  ierror = cast(out_value, obj, .false.)
 end function
 
 
@@ -10240,6 +10377,29 @@ function cast_to_char_1d(out_value, obj) result(ierror)
     ierror = EXCEPTION_ERROR
     call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR), dimension(:), pointer.")
   endif
+end function
+
+function cast_nonstrict_to_chars(out_value, obj) result(ierror)
+  character(kind=C_CHAR, len=:), allocatable, intent(out) :: out_value
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+  
+  type(c_ptr) :: str_obj
+  
+  if (is_str(obj) .or. is_bytes(obj) .or. is_unicode(obj)) then
+    ierror = unbox_value(out_value, obj%py_object)
+    return
+  endif
+  
+  str_obj = PyObject_Str(obj%py_object)
+  
+  if (.not. c_associated(str_obj)) then
+    ierror = EXCEPTION_ERROR
+    return
+  endif
+  
+  ierror = unbox_value(out_value, str_obj)
+  call Py_DecRef(str_obj)
 end function
 
 ! casting scalar Fortran types into Python objects

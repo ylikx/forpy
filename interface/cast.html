@@ -126,7 +126,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
 	  data-placement="bottom" data-html="true"
-	  title="<p> 8.3% of total for procedures.</p>Including implementation: 318 statements, 88.1% of total for procedures.">30 statements</a>
+	  title="<p> 8.3% of total for procedures.</p>Including implementation: 327 statements, 87.4% of total for procedures.">31 statements</a>
      </li> 
      
      
@@ -190,6 +190,8 @@
       <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_nonetype">cast_to_NoneType</a>
       
       <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_ndarray">cast_to_ndarray</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_object">cast_to_object</a>
       
       <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_char_1d">cast_to_char_1d</a>
       
@@ -260,6 +262,8 @@
       <a class="list-group-item" href="../interface/call_py_noret.html">call_py_noret</a>
       
       <a class="list-group-item" href="../interface/cast.html">cast</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html">cast_nonstrict</a>
       
       <a class="list-group-item" href="../proc/dict_create.html">dict_create</a>
       
@@ -348,7 +352,7 @@
       <h2>public interface cast</h2>
 	 <p>Casts/Transforms between Fortran and Python datatypes</p>
 <p>Result is 1st argument to cast, object/scalar to cast 2nd argument
- Use to cast/transform a Python <a href="../type/object.html">object</a> into a Fortran values
+ Use to cast/transform a Python <a href="../type/object.html">object</a> into a Fortran value
  Use to cast/transform Fortran values into a Python <a href="../type/object.html">object</a>
  and to cast an unspecific Python <a href="../type/object.html">object</a> into more specific objects, such
  as <a href="../type/list.html">list</a>, <a href="../type/tuple.html">tuple</a>, <a href="../type/dict.html">dict</a>
@@ -357,7 +361,7 @@
  Python strings are encoded as UTF-8</p>
 <p>For casting to numerical Fortran scalars, there is an optional 3rd argument "strict"
  for cast: if strict=.false. it will try to convert numerical values to the requested
- datatype (default: strict=.true.)</p>
+ datatype (default: strict=.true.). This is the same as using <a href="../interface/cast_nonstrict.html">cast_nonstrict</a>.</p>
      
      
     <br>
@@ -397,6 +401,8 @@
       <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_nonetype">cast_to_NoneType</a>
       
       <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_ndarray">cast_to_ndarray</a>
+      
+      <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_object">cast_to_object</a>
       
       <a class="list-group-item" href="../interface/cast.html#moduleprocedure-cast_to_char_1d">cast_to_char_1d</a>
       
@@ -797,6 +803,81 @@ private function cast_to_ndarray(nd, obj) result(ierror)
   
   <td></td><td>::</td>
   <td><strong>nd</strong></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>class(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>obj</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  
+    
+
+  </div>
+  </div>
+
+ 	 
+    
+  <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-cast_to_object"></span><h3>
+private function cast_to_object(plain_obj, obj) result(ierror)
+    
+    
+	 
+</h3></div>
+  <div class="panel-body">
+       
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/object.html'>object</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>plain_obj</strong></td><td></td>
   
 </tr>
 
@@ -2688,6 +2769,8 @@ private function cast_from_logical(obj, in_value) result(ierror)
       <a class="list-group-item" href="../interface/call_py_noret.html">call_py_noret</a>
       
       <a class="list-group-item" href="../interface/cast.html">cast</a>
+      
+      <a class="list-group-item" href="../interface/cast_nonstrict.html">cast_nonstrict</a>
       
       <a class="list-group-item" href="../proc/dict_create.html">dict_create</a>
       
