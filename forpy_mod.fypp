@@ -107,11 +107,19 @@ type, bind(c) :: Py_buffer
 end type
 
 type, bind(c) :: PyObject
+#ifdef Py_DEBUG
+    type(c_ptr) :: ob_next
+    type(c_ptr) :: ob_prev
+#endif
     integer(kind=PY_SSIZE_T_KIND) :: ob_refcnt
     type(c_ptr) :: ob_type
 end type
 
 type, bind(c) :: PyTypeObject
+#ifdef Py_DEBUG
+    type(c_ptr) :: ob_next
+    type(c_ptr) :: ob_prev
+#endif
     integer(kind=PY_SSIZE_T_KIND) :: ob_refcnt
     type(c_ptr) :: ob_type
     integer(kind=PY_SSIZE_T_KIND) :: ob_size
@@ -724,7 +732,11 @@ function PySys_GetObject(a_name) bind(c, name="PySys_GetObject") result(r)
 end function
 
 #ifndef PYTHON2
+#ifndef Py_DEBUG
 function PyModule_Create2(def, module_api_version) bind(c, name="PyModule_Create2") result(r)
+#else
+function PyModule_Create2(def, module_api_version) bind(c, name="PyModule_Create2TraceRefs") result(r)
+#endif
   import c_ptr, C_INT
   type(c_ptr), value :: def
   integer(kind=C_INT), value :: module_api_version
@@ -736,9 +748,17 @@ end function
 !Python 2 only
 !PyObject* Py_InitModule4(char *name, PyMethodDef *methods, char *doc, PyObject *self, int apiver)
 #ifndef PYTHON2_32
+#ifndef Py_DEBUG
 function Py_InitModule4(a_name, methods, doc, self, apiver) bind(c, name="Py_InitModule4_64") result(r)
 #else
+function Py_InitModule4(a_name, methods, doc, self, apiver) bind(c, name="Py_InitModule4TraceRefs_64") result(r)
+#endif
+#else
+#ifndef Py_DEBUG
 function Py_InitModule4(a_name, methods, doc, self, apiver) bind(c, name="Py_InitModule4") result(r)
+#else
+function Py_InitModule4(a_name, methods, doc, self, apiver) bind(c, name="Py_InitModule4TraceRefs") result(r)
+#endif
 #endif
   import c_ptr, C_CHAR, C_INT
   character(kind=C_CHAR), dimension(*) :: a_name

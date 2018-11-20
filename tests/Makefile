@@ -14,19 +14,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 FC=gfortran
-FCFLAGS=-Wall -g
+FFLAGS=-Wall -g
 PY_VERSION=3
 
 ifeq ($(FC),ifort)
-  FCFLAGS=-warn all -g
+  FFLAGS=-warn all -g
 endif
 
-LDFLAGS=`python3-config --ldflags`
+PYTHON=python3
 
 ifeq ($(PY_VERSION),2)
-  LDFLAGS=`python2-config --ldflags`
-  FCFLAGS+=-DPYTHON2
+  PYTHON=python2
+  FFLAGS+=-DPYTHON2
 endif
+
+PYTHON_CONFIG=$(PYTHON)-config
+
+ifeq ($(PY_DEBUG), 1)
+  PYTHON_CONFIG=$(PYTHON)-dbg-config
+  FFLAGS+= -DPy_DEBUG
+endif
+
+LDFLAGS=`$(PYTHON_CONFIG) --ldflags`
 
 .PHONY: tests
 tests: test_basics test_cast test_datastructures test_ndarray
@@ -39,22 +48,22 @@ runtests: tests
 	./test_ndarray
 
 test_basics: test_basics.o test_basics_mod.o forpy_mod.o unittest_mod.o
-	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
+	$(FC) $(FFLAGS) -o $@ $^ $(LDFLAGS)
 	
 test_cast: test_cast.o test_cast_mod.o forpy_mod.o unittest_mod.o
-	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
+	$(FC) $(FFLAGS) -o $@ $^ $(LDFLAGS)
 
 test_datastructures: test_datastructures.o test_datastructures_mod.o forpy_mod.o unittest_mod.o
-	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
+	$(FC) $(FFLAGS) -o $@ $^ $(LDFLAGS)
 
 test_ndarray: test_ndarray.o test_ndarray_mod.o forpy_mod.o unittest_mod.o
-	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
+	$(FC) $(FFLAGS) -o $@ $^ $(LDFLAGS)
 
 unittest_mod.o: unittest_mod.F90 unittest_mod.inc
-	$(FC) $(FCFLAGS) -c -o $@ $<
+	$(FC) $(FFLAGS) -c -o $@ $<
 
 %.o: %.F90
-	$(FC) $(FCFLAGS) -c -o $@ $<
+	$(FC) $(FFLAGS) -c -o $@ $<
 
 forpy_mod.F90: ../forpy_mod.fypp
 	python2 ../fypp.py ../forpy_mod.fypp forpy_mod.F90
