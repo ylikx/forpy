@@ -26,7 +26,9 @@ implicit none
 call setUpClass
 
 TEST(test_multiple_inits)
+TEST(test_getattribute)
 TEST(test_simple_call)
+TEST(test_call_py_noret_kwargs)
 TEST(test_check_args01)
 TEST(test_check_args02)
 TEST(test_check_args03)

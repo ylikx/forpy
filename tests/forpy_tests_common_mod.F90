@@ -96,9 +96,13 @@ subroutine check_total_refcount()
   current_total_refcount = gettotalrefcount()
   
   if (current_total_refcount /= saved_total_refcount) then
-    call fail_test
-    write(*,fmt="('Refcount before/after not the same: ',I7,'/',I7,' diff=',I7)") &
+    !call fail_test
+    write(*,*)
+    write(*,fmt="(' Following test: Refcount before/after not the same: ',I7,'/',I7,' diff=',I7)") &
       saved_total_refcount, current_total_refcount, (current_total_refcount - saved_total_refcount)
+    write(*,*) "This does not necessarily mean that there is an error."
+    write(*,*) "The total refcount might change due to internal caching, garbage collector behaviour..."
+    write(*,*) "Try running the test several times to see if the problem persists."
   endif
 end subroutine
 
@@ -118,7 +122,11 @@ subroutine tearDown_forpy_test()
     call fail_test
     write(*,*) "The test did not clear the following exception:"
     call err_print
-    return ! continue to refcount check, only if there was no exception
+    
+    ! continue to refcount check, only if there was no exception,
+    ! because you don't want to deal with all the error cases of the
+    ! test itself when writing a test
+    return
   endif
 
 #ifdef Py_DEBUG

@@ -16,6 +16,7 @@
 module test_basics_mod
 use unittest_mod
 use forpy_mod
+use forpy_tests_common_mod, only: setUp_forpy_test, tearDown_forpy_test, gettotalrefcount
 use iso_fortran_env
 use iso_c_binding
 implicit none
@@ -39,17 +40,41 @@ subroutine test_multiple_inits
   ASSERT(ierror==ierror2)  
 end subroutine
 
+subroutine test_getattribute
+  integer :: ierror
+  type(object) :: attr
+  ierror = test_mod%getattribute(attr, "do_nothing")
+  ASSERT(ierror==0)
+  call attr%destroy
+end subroutine
+
 subroutine test_simple_call
   integer ierror
   type(object) :: retval
   type(tuple) :: args
   type(dict) :: kwargs
   ierror = tuple_create(args, 0)
+  ASSERT(ierror==0)
   ierror = dict_create(kwargs)
+  ASSERT(ierror==0)
   ierror = call_py(retval, test_mod, "do_nothing", args, kwargs)
   ASSERT(ierror==0)
   ASSERT(is_none(retval))
   call retval%destroy
+  call args%destroy
+  call kwargs%destroy
+end subroutine
+
+subroutine test_call_py_noret_kwargs
+  integer ierror
+  type(tuple) :: args
+  type(dict) :: kwargs
+  ierror = tuple_create(args, 0)
+  ASSERT(ierror==0)
+  ierror = dict_create(kwargs)
+  ASSERT(ierror==0)
+  ierror = call_py_noret(test_mod, "check_args_kwargs", args, kwargs)
+  ASSERT(ierror==0)
   call args%destroy
   call kwargs%destroy
 end subroutine
@@ -203,8 +228,6 @@ subroutine test_instantiate
   type(object) :: instance, property
   type(tuple) :: args
   type(dict) :: kwargs
-  logical :: flag
-  flag = .false.
   ierror = tuple_create(args, 0)
   ierror = dict_create(kwargs)
   ierror = call_py(instance, test_mod, "MyClass", args, kwargs)
@@ -558,16 +581,11 @@ subroutine test_return_unicode
 end subroutine
 
 subroutine setUp()
-
+ call setUp_forpy_test
 end subroutine
 
 subroutine tearDown()
-  !check if there is an uncleared exception - if yes, fail the test and clear
-  if (have_exception()) then
-    call fail_test
-    write(*,*) "The test did not clear the following exception:"
-    call err_print
-  endif
+  call tearDown_forpy_test
 end subroutine
 
 subroutine setUpClass()

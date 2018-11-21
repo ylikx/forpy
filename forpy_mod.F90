@@ -4321,10 +4321,11 @@ function object_getattribute(self, attr, attr_name) result(ierror)
     return
   endif
 
+  call Py_Decref(attr_name_str)
+
   if (.not. c_associated(attr%py_object)) then
     ierror = EXCEPTION_ERROR
   endif
-
 end function
 
 function object_setattr(self, attr_name, attr_value) result(ierror)
