@@ -99,6 +99,7 @@ subroutine test_list_in_tuple
   call tu%destroy
   call li%destroy
   call li2%destroy
+  call obj%destroy
 end subroutine
 
 subroutine test_list_type
@@ -260,6 +261,7 @@ subroutine test_str_in_tuple
   ierror = t%getitem(buffer, 0)
   ASSERT(ierror==0)
   ASSERT(buffer==TESTSTR)
+  call t%destroy
 end subroutine
 
 subroutine setUp()
