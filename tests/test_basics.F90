@@ -27,6 +27,9 @@ call setUpClass
 
 TEST(test_multiple_inits)
 TEST(test_getattribute)
+TEST(test_getattribute_does_not_exist)
+TEST(test_setattr)
+TEST(test_delattr)
 TEST(test_simple_call)
 TEST(test_call_py_noret_kwargs)
 TEST(test_check_args01)

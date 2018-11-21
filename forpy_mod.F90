@@ -4340,6 +4340,7 @@ function object_setattr(self, attr_name, attr_value) result(ierror)
 
   if (ierror == 0_C_INT) then
     ierror = PyObject_SetAttr(self%py_object, attr_name_str, attr_value%py_object)
+    call Py_Decref(attr_name_str)
   endif
 end function
 
@@ -4353,6 +4354,7 @@ function object_delattr(self, attr_name) result(ierror)
 
   if (ierror == 0_C_INT) then
     ierror = PyObject_SetAttr(self%py_object, attr_name_str, C_NULL_PTR)
+    call Py_Decref(attr_name_str)
   endif
 end function
 

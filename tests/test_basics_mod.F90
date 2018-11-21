@@ -48,6 +48,32 @@ subroutine test_getattribute
   call attr%destroy
 end subroutine
 
+subroutine test_getattribute_does_not_exist
+  integer :: ierror
+  type(object) :: attr
+  ierror = test_mod%getattribute(attr, "does_not_exist")
+  ASSERT(ierror/=0)
+  ASSERT(have_exception())
+  call err_clear
+  call attr%destroy
+end subroutine
+
+subroutine test_setattr
+  integer :: ierror
+  type(object) :: attr
+  ierror = cast(attr, 123)
+  ASSERT(ierror==0)
+  ierror = test_mod%setattr("test_attribute33", attr)
+  ASSERT(ierror==0)
+  call attr%destroy
+end subroutine
+
+subroutine test_delattr
+  integer :: ierror
+  ierror = test_mod%delattr("attribute_to_delete")
+  ASSERT(ierror==0)
+end subroutine
+
 subroutine test_simple_call
   integer ierror
   type(object) :: retval

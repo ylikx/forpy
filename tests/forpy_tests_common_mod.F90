@@ -101,7 +101,7 @@ subroutine check_total_refcount()
     write(*,fmt="(' Following test: Refcount before/after not the same: ',I7,'/',I7,' diff=',I7)") &
       saved_total_refcount, current_total_refcount, (current_total_refcount - saved_total_refcount)
     write(*,*) "This does not necessarily mean that there is an error."
-    write(*,*) "The total refcount might change due to internal caching, garbage collector behaviour..."
+    write(*,*) "The total refcount might change due to internal caching, deleted objects, garbage collector behaviour..."
     write(*,*) "Try running the test several times to see if the problem persists."
   endif
 end subroutine
