@@ -17,6 +17,7 @@ module test_datastructures_mod
 use unittest_mod
 use forpy_mod
 use iso_c_binding
+use forpy_tests_common_mod, only: setUp_forpy_test, tearDown_forpy_test, gettotalrefcount
 implicit none
 
 CONTAINS
@@ -262,16 +263,11 @@ subroutine test_str_in_tuple
 end subroutine
 
 subroutine setUp()
-
+  call setUp_forpy_test
 end subroutine
 
 subroutine tearDown()
-  !check if there is an uncleared exception - if yes, fail the test and clear
-  if (have_exception()) then
-    call fail_test
-    write(*,*) "The test did not clear the following exception:"
-    call err_print
-  endif
+  call tearDown_forpy_test
 end subroutine
 
 subroutine setUpClass()

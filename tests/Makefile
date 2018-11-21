@@ -53,7 +53,7 @@ test_basics: test_basics.o test_basics_mod.o forpy_mod.o unittest_mod.o
 test_cast: test_cast.o test_cast_mod.o forpy_mod.o unittest_mod.o
 	$(FC) $(FFLAGS) -o $@ $^ $(LDFLAGS)
 
-test_datastructures: test_datastructures.o test_datastructures_mod.o forpy_mod.o unittest_mod.o
+test_datastructures: test_datastructures.o test_datastructures_mod.o forpy_mod.o unittest_mod.o forpy_tests_common_mod.o
 	$(FC) $(FFLAGS) -o $@ $^ $(LDFLAGS)
 
 test_ndarray: test_ndarray.o test_ndarray_mod.o forpy_mod.o unittest_mod.o
@@ -80,12 +80,13 @@ clean:
 	rm -f *.pyc
 
 # Fortran module dependencies
+forpy_tests_common_mod.o: forpy_mod.o unittest_mod.o
 test_basics.o: test_basics_mod.o
 test_basics_mod.o: unittest_mod.o forpy_mod.o
 test_cast.o: test_cast_mod.o
 test_cast_mod.o: unittest_mod.o forpy_mod.o
 test_datastructures.o: test_datastructures_mod.o
-test_datastructuers_mod.o: unittest_mod.o forpy_mod.o
+test_datastructures_mod.o: unittest_mod.o forpy_mod.o forpy_tests_common_mod.o
 test_ndarray.o: test_ndarray_mod.o
 test_ndarray_mod.o: unittest_mod.o forpy_mod.o
 
