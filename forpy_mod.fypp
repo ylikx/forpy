@@ -2899,6 +2899,7 @@ function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, fo
   !TODO: check if numpy was successfully imported
 
   ierror = 0_C_INT
+  res%py_object = C_NULL_PTR
   
   length = 1
   do ii = 1, ndim
@@ -2922,8 +2923,7 @@ function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, fo
 
   mem_view = PyMemoryView_FromBuffer(buffer)
   if (.not. c_associated(mem_view)) then
-    ierror = -1_C_INT ! TODO: set exception
-    res%py_object = C_NULL_PTR
+    ierror = -1_C_INT
     return
   endif
 
@@ -2931,18 +2931,21 @@ function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, fo
   if (c_associated(args)) then
     ierror = PyTuple_SetItem(args, 0_PY_SSIZE_T_KIND, mem_view) ! steals reference to mem_view even if it fails
 
-    if (ierror /= 0) then
+    if (ierror /= 0_C_INT) then
       call Py_Decref(args)
-      res%py_object = C_NULL_PTR
       return
     endif
-
+    
     res%py_object = PyObject_Call(global_numpy_asarray_method, args, C_NULL_PTR)
     call Py_Decref(args)
 
     if (.not. c_associated(res%py_object)) then
       ierror = -1_C_INT
     endif
+    
+  else ! .not. c_associated(args)
+    call Py_Decref(mem_view)
+    ierror = -1_C_INT
   endif
 
 end function

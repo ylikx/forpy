@@ -16,6 +16,7 @@
 module test_cast_mod
 use unittest_mod
 use forpy_mod
+use forpy_tests_common_mod, only: setUp_forpy_test, tearDown_forpy_test, gettotalrefcount
 use iso_fortran_env
 use iso_c_binding
 implicit none
@@ -380,16 +381,11 @@ subroutine test_cast_bytes_to_chars
 end subroutine
 
 subroutine setUp()
-
+ call setUp_forpy_test
 end subroutine
 
 subroutine tearDown()
-  !check if there is an uncleared exception - if yes, fail the test and clear
-  if (have_exception()) then
-    call fail_test
-    write(*,*) "The test did not clear the following exception:"
-    call err_print
-  endif
+ call tearDown_forpy_test
 end subroutine
 
 subroutine setUpClass()

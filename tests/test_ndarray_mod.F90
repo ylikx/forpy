@@ -16,6 +16,7 @@
 module test_ndarray_mod
 use unittest_mod
 use forpy_mod
+use forpy_tests_common_mod, only: setUp_forpy_test, tearDown_forpy_test, gettotalrefcount
 use iso_fortran_env
 use iso_c_binding
 implicit none
@@ -32,13 +33,29 @@ subroutine test_ndarray_expected()
   type(ndarray) :: nd_arr
   integer arr(1)
   arr(1) = 42
-  ierror = tuple_create(args, 1)
   ierror = ndarray_create(nd_arr, arr)
+  ASSERT(ierror==0)
+  ierror = tuple_create(args, 1)
   ierror = args%setitem(0, nd_arr)
   ierror = call_py_noret(test_mod, "ndarray_expected", args)
   ASSERT(ierror==0)
   ASSERT(.not. have_exception())
   call args%destroy
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_ndarray_get_data_01()
+  integer ierror
+  type(ndarray) :: nd_arr
+  integer :: arr(1)
+  integer, dimension(:), pointer :: arr_ptr
+  arr(1) = 42
+  ierror = ndarray_create(nd_arr, arr)
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(arr_ptr)
+  ASSERT(ierror==0)
+  ASSERT(size(arr_ptr)==1)
+  ASSERT(arr_ptr(1)==arr(1))
   call nd_arr%destroy
 end subroutine
 
@@ -52,8 +69,9 @@ subroutine test_check_ndarray_1d()
   do ii = 1,24
     arr(ii) = ii
   enddo
-  ierror = tuple_create(args, 1)
+
   ierror = ndarray_create(nd_arr, arr)
+  ierror = tuple_create(args, 1)
   ierror = args%setitem(0, nd_arr)
   ierror = call_py_noret(test_mod, "check_ndarray_1d", args)
   ASSERT(ierror==0)
@@ -75,8 +93,8 @@ subroutine test_check_ndarray_2d()
     enddo
   enddo
   
-  ierror = tuple_create(args, 1)
   ierror = ndarray_create(nd_arr, arr)
+  ierror = tuple_create(args, 1)
   ierror = args%setitem(0, nd_arr)
   ierror = call_py_noret(test_mod, "check_ndarray_2d", args)
   ASSERT(ierror==0)
@@ -372,7 +390,9 @@ subroutine test_copy()
   integer ierror
   type(ndarray) :: nd_arr, nd_arr_copy
   integer, dimension(:), pointer :: arr, arr_copy
-  integer :: testarr(2) = [314, 297]
+  integer :: testarr(2)
+  
+  testarr = [314, 297]
   
   ierror = ndarray_create(nd_arr, testarr)
   ASSERT(ierror==0)  
@@ -760,16 +780,11 @@ end subroutine
 
 ! code to execute before every test
 subroutine setUp()
-
+  call setUp_forpy_test
 end subroutine
 
 subroutine tearDown()
-  !check if there is an uncleared exception - if yes, fail the test and clear
-  if (have_exception()) then
-    call fail_test
-    write(*,*) "The test did not clear the following exception:"
-    call err_print
-  endif
+  call tearDown_forpy_test
 end subroutine
 
 subroutine setUpClass()
