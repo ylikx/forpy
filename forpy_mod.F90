@@ -102,6 +102,9 @@ type, bind(c) :: Py_buffer
   type(c_ptr) :: shape
   type(c_ptr) :: strides
   type(c_ptr) :: suboffsets
+#ifdef PYTHON2
+  integer(kind=PY_SSIZE_T_KIND) :: smalltable(2)
+#endif
   type(c_ptr) :: internal
 end type
 
@@ -8526,6 +8529,9 @@ function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, fo
   buffer%shape = c_loc(array_shape)
   buffer%strides = c_loc(strides)
   buffer%suboffsets = C_NULL_PTR
+#ifdef PYTHON2
+  buffer%smalltable = 0_PY_SSIZE_T_KIND
+#endif
   buffer%internal = C_NULL_PTR
 
   mem_view = PyMemoryView_FromBuffer(buffer)
@@ -8571,8 +8577,6 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
   integer(kind=PY_SSIZE_T_KIND), dimension(:), pointer :: shape_ptr
   integer :: shape_info_shape(1)
   character(kind=C_CHAR) :: detected_order
-
-  type(c_ptr) :: mem_view
   character(kind=C_CHAR,len=60) :: error_message
 
   ! order can have values 'C', 'F' or 'A'
@@ -8583,18 +8587,10 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
   endif
 
   shape_info_shape(1) = ndim
-  mem_view = PyMemoryView_FromObject(self%py_object)
-
-  ierror = 0_C_INT
-  if (.not. c_associated(mem_view)) then
-    ierror = -1
-    return
-  endif
 
   ! raises BufferError exception if array is not contiguous, Python 2: ValueError
-  ierror = PyObject_GetBuffer(mem_view, buffer, 156_C_INT) !flags (PyBUF_FORMAT | PyBUF_ANY_CONTIGUOUS) - we need the format info and PyBUF_FORMAT alone gives error
-  call Py_Decref(mem_view)
-
+  ierror = PyObject_GetBuffer(self%py_object, buffer, 156_C_INT) !flags (PyBUF_FORMAT | PyBUF_ANY_CONTIGUOUS) - we need the format info and PyBUF_FORMAT alone gives error
+  
   if (ierror /= 0) then
     if (exception_matches(BufferError) .or. exception_matches(ValueError)) then ! make error message more informative
       call err_clear
@@ -8623,15 +8619,15 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
     else
       error_message = "forpy: expected contiguous array"
     endif
-    call raise_exception(BufferError, error_message)
     call PyBuffer_Release(buffer)
+    call raise_exception(BufferError, error_message)
     return
   endif
 
   if (buffer%ndim /= ndim) then
-    call PyBuffer_Release(buffer)
     ierror = EXCEPTION_ERROR
     write(error_message,fmt="('forpy: expected array of rank ',I1,', got array of rank ',I1)") ndim, buffer%ndim
+    call PyBuffer_Release(buffer)
     call raise_exception(TypeError, error_message)
     return
   endif
@@ -8643,19 +8639,19 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
   if (associated(shape_ptr)) then
     if (get_data_helper_check_dtype(buffer%format, format_c_string) /= 0) then
       ierror = EXCEPTION_ERROR
+      call PyBuffer_Release(buffer)
       call raise_exception(TypeError, "forpy: ndarray%get_data - datatype of data pointer is incompatible with ndarray")
+      return
     endif
   else
     ierror = EXCEPTION_ERROR
-    call raise_exception(RuntimeError, "forpy: Could not determine shape of ndarray")
-  endif
-
-  if (ierror /= 0_C_INT) then
     call PyBuffer_Release(buffer)
+    call raise_exception(RuntimeError, "forpy: Could not determine shape of ndarray")
     return
   endif
 
   raw_ptr = buffer%buf
+
   call get_shape_info_helper(shape_info, shape_ptr, detected_order)
   call PyBuffer_Release(buffer)
 
