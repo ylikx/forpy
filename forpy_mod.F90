@@ -829,6 +829,11 @@ interface unbox_value
   module procedure unbox_value_char_1d
 end interface
 
+interface tuple_from_array
+  module procedure tuple_from_array_int32
+  module procedure tuple_from_array_int64
+end interface
+
 !--------- High-level API to Python's datastructures -------------------
 
 
@@ -8673,6 +8678,10 @@ end function
 #endif
 
 #ifdef PYTHON2
+! Python 2 array creation using old-style, py2-only buffer object + np.frombuffer.
+! In principle with Py 2.7 it would be possible to use the same code as 
+! in the Py 3 case, but the memoryview + np.asarray
+! approach is somewhat buggy in Py 2 and one reference is lost 
 function ndarray_create_helper_py2(res, array_c_loc, array_shape, ndim, itemsize, dtype) result(ierror)
   type(ndarray), intent(inout) :: res
   type(c_ptr), intent(in) :: array_c_loc
@@ -8686,16 +8695,13 @@ function ndarray_create_helper_py2(res, array_c_loc, array_shape, ndim, itemsize
   type(c_ptr) :: buffer_obj
   type(module_py) :: numpy
   type(tuple) :: args
-  type(object) :: retval, tmp
+  type(object) :: retval
+  type(object) :: buffer
+  type(ndarray) :: reshaped_array
   integer :: ii
 
-  ierror = 0_C_INT
+  ierror = -1_C_INT
   res%py_object = C_NULL_PTR
-  
-  if (ndim > 1) then
-    ierror = -1_C_INT ! TODO: dims > 1
-    return
-  endif
   
   length = 1
   do ii = 1, ndim
@@ -8703,39 +8709,112 @@ function ndarray_create_helper_py2(res, array_c_loc, array_shape, ndim, itemsize
   enddo
 
   buffer_obj = PyBuffer_FromReadWriteMemory(array_c_loc, length*itemsize)
-  tmp%py_object = buffer_obj
-  
-  ierror = tuple_create(args, 2_PY_SSIZE_T_KIND)
-  if (ierror /= 0_C_INT) then
-    call Py_Decref(buffer_obj)
+  if (.not. c_associated(buffer_obj)) then
     return
   endif
   
-  ierror = args%setitem(0_PY_SSIZE_T_KIND, tmp)
+  buffer%py_object = buffer_obj
+  
+  ierror = tuple_create(args, 2_PY_SSIZE_T_KIND)
+  if (ierror /= 0_C_INT) then
+    call buffer%destroy
+    return
+  endif
+  
+  ierror = args%setitem(0_PY_SSIZE_T_KIND, buffer)
   if (ierror /= 0_C_INT) then
     call args%destroy
-    call Py_Decref(buffer_obj)
+    call buffer%destroy
     return
   endif
   
   ierror = args%setitem(1_PY_SSIZE_T_KIND, dtype)
   if (ierror /= 0_C_INT) then
     call args%destroy
-    call Py_Decref(buffer_obj)
+    call buffer%destroy
     return
   endif 
   
   numpy%py_object = global_numpy_mod
   ierror = call_py(retval, numpy, "frombuffer", args)
   call args%destroy
-  call Py_Decref(buffer_obj)
+  call buffer%destroy
   
   if (ierror == 0_C_INT) then
     res%py_object = retval%py_object
   else
+    call retval%destroy
     return
   endif
-  ! TODO: reshape for ndim > 1
+  
+  if (ndim > 1) then
+    ierror = ndarray_reshape_helper(reshaped_array, res, array_shape, 'F')
+    call res%destroy
+    
+    if (ierror == 0_C_INT) then
+      res%py_object = reshaped_array%py_object
+    else
+      res%py_object = C_NULL_PTR
+    endif
+  endif
+end function
+
+function ndarray_reshape_helper(reshaped_array, array, new_shape, order) result(ierror)
+  type(ndarray), intent(out) :: reshaped_array
+  class(ndarray), intent(in) :: array
+  integer(kind=PY_SSIZE_T_KIND), dimension(:), intent(in) :: new_shape
+  character(kind=C_CHAR), intent(in) :: order
+  integer(kind=C_INT) :: ierror
+  
+  type(tuple) :: args
+  type(dict) :: kwargs
+  type(tuple) :: new_shape_tuple
+  type(object) :: retval
+  
+  reshaped_array%py_object = C_NULL_PTR
+  
+  ierror = tuple_from_array(new_shape_tuple, new_shape)
+  if (ierror /= 0_C_INT) then
+    return
+  endif
+  
+  ierror = tuple_create(args, 1_PY_SSIZE_T_KIND)
+  if (ierror /= 0_C_INT) then
+    call new_shape_tuple%destroy
+    return
+  endif
+  
+  ierror = args%setitem(0_PY_SSIZE_T_KIND, new_shape_tuple)
+  if (ierror /= 0_C_INT) then
+    call args%destroy
+    call new_shape_tuple%destroy
+    return
+  endif
+  
+  ierror = dict_create(kwargs)
+  if (ierror /= 0_C_INT) then
+    call args%destroy
+    call new_shape_tuple%destroy
+    return
+  endif
+  
+  ierror = kwargs%setitem("order", "F")
+  if (ierror /= 0_C_INT) then
+    call kwargs%destroy
+    call args%destroy
+    call new_shape_tuple%destroy
+    return
+  endif   
+  
+  ierror = call_py(retval, array, "reshape", args, kwargs)
+  if (ierror == 0_C_INT) then
+    ierror = cast(reshaped_array, retval)
+    call retval%destroy
+  endif
+  
+  call kwargs%destroy
+  call args%destroy
+  call new_shape_tuple%destroy 
 end function
 #endif
 
