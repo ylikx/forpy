@@ -62,11 +62,14 @@ test_ndarray: test_ndarray.o test_ndarray_mod.o forpy_mod.o unittest_mod.o forpy
 unittest_mod.o: unittest_mod.F90 unittest_mod.inc
 	$(FC) $(FFLAGS) -c -o $@ $<
 
+forpy_mod.o: ../forpy_mod.F90
+	$(FC) $(FFLAGS) -c -o $@ $<
+
 %.o: %.F90
 	$(FC) $(FFLAGS) -c -o $@ $<
 
-forpy_mod.F90: ../forpy_mod.fypp
-	python2 ../fypp.py ../forpy_mod.fypp forpy_mod.F90
+../forpy_mod.F90: ../forpy_mod.fypp
+	python2 ../fypp.py ../forpy_mod.fypp ../forpy_mod.F90
 
 .PHONY: clean
 clean:

@@ -16,7 +16,7 @@
 !> This module contains common code that all forpy test suites use 
 !> to help with testing.
 module forpy_tests_common_mod
-use unittest_mod, only: fail_test
+use unittest_mod, only: fail_test, get_fail_flag
 use forpy_mod, only: PY_SSIZE_T_KIND, have_exception, err_print
 use iso_c_binding
 implicit none
@@ -122,15 +122,14 @@ subroutine tearDown_forpy_test()
     call fail_test
     write(*,*) "The test did not clear the following exception:"
     call err_print
-    
-    ! continue to refcount check, only if there was no exception,
-    ! because you don't want to deal with all the error cases of the
-    ! test itself when writing a test
     return
   endif
 
 #ifdef Py_DEBUG
-  call check_total_refcount
+  ! test refcounts only when test has passed so far
+  if (get_fail_flag() == 0) then
+    call check_total_refcount
+  endif
 #endif
 end subroutine
 

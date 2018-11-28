@@ -781,6 +781,17 @@ function PyModule_AddObject(a_module, a_name, a_value) bind(c, name="PyModule_Ad
   integer(kind=C_INT) :: r
 end function
 
+#ifdef PYTHON2
+! Old-style Python2-only buffer protocol API function
+!PyObject* PyBuffer_FromReadWriteMemory(void *ptr, Py_ssize_t size)
+function PyBuffer_FromReadWriteMemory(ptr, the_size) bind(c, name="PyBuffer_FromReadWriteMemory") result(r)
+  import c_ptr, PY_SSIZE_T_KIND
+  type(c_ptr), value :: ptr
+  integer(kind=PY_SSIZE_T_KIND), value :: the_size
+  type(c_ptr) :: r
+end function
+#endif
+
 function strcmp(s1, s2) bind(c) result(r)
   import c_ptr, C_INT
   type(c_ptr), value :: s1, s2
@@ -7132,9 +7143,13 @@ function ndarray_create_int32_1d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int32")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7189,9 +7204,13 @@ function ndarray_create_int64_1d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7246,9 +7265,13 @@ function ndarray_create_real32_1d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float32")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7303,9 +7326,13 @@ function ndarray_create_real64_1d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7360,9 +7387,13 @@ function ndarray_create_complex_real32_1d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7417,9 +7448,13 @@ function ndarray_create_complex_real64_1d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 16_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex128")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7474,9 +7509,13 @@ function ndarray_create_int32_2d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int32")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7531,9 +7570,13 @@ function ndarray_create_int64_2d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7588,9 +7631,13 @@ function ndarray_create_real32_2d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float32")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7645,9 +7692,13 @@ function ndarray_create_real64_2d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7702,9 +7753,13 @@ function ndarray_create_complex_real32_2d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7759,9 +7814,13 @@ function ndarray_create_complex_real64_2d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 16_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex128")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7816,9 +7875,13 @@ function ndarray_create_int32_3d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int32")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7873,9 +7936,13 @@ function ndarray_create_int64_3d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7930,9 +7997,13 @@ function ndarray_create_real32_3d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float32")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -7987,9 +8058,13 @@ function ndarray_create_real64_3d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8044,9 +8119,13 @@ function ndarray_create_complex_real32_3d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8101,9 +8180,13 @@ function ndarray_create_complex_real64_3d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 16_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex128")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8158,9 +8241,13 @@ function ndarray_create_int32_4d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int32")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8215,9 +8302,13 @@ function ndarray_create_int64_4d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8272,9 +8363,13 @@ function ndarray_create_real32_4d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float32")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8329,9 +8424,13 @@ function ndarray_create_real64_4d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8386,9 +8485,13 @@ function ndarray_create_complex_real32_4d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex64")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8443,9 +8546,13 @@ function ndarray_create_complex_real64_4d(res, array) result(ierror)
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 16_PY_SSIZE_T_KIND
-  
+
+#ifndef PYTHON2  
   ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
-  
+#else  
+  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex128")
+#endif
+
 end function
 
 !> Get pointer to data of numpy array
@@ -8490,6 +8597,7 @@ function get_data_complex_real64_4d(self, ptr, order) result(ierror)
 end function
 
 
+#ifndef PYTHON2
 function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, format_c_string) result(ierror)
   type(ndarray), intent(inout) :: res
   type(c_ptr), intent(in) :: array_c_loc
@@ -8562,6 +8670,74 @@ function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, fo
   endif
 
 end function
+#endif
+
+#ifdef PYTHON2
+function ndarray_create_helper_py2(res, array_c_loc, array_shape, ndim, itemsize, dtype) result(ierror)
+  type(ndarray), intent(inout) :: res
+  type(c_ptr), intent(in) :: array_c_loc
+  integer, intent(in) :: ndim
+  integer(kind=PY_SSIZE_T_KIND), target, dimension(ndim), intent(in) :: array_shape
+  integer(kind=PY_SSIZE_T_KIND) :: itemsize
+  character(kind=C_CHAR, len=*), target, intent(in) :: dtype 
+  integer(kind=C_INT) :: ierror
+
+  integer(kind=PY_SSIZE_T_KIND) :: length
+  type(c_ptr) :: buffer_obj
+  type(module_py) :: numpy
+  type(tuple) :: args
+  type(object) :: retval, tmp
+  integer :: ii
+
+  ierror = 0_C_INT
+  res%py_object = C_NULL_PTR
+  
+  if (ndim > 1) then
+    ierror = -1_C_INT ! TODO: dims > 1
+    return
+  endif
+  
+  length = 1
+  do ii = 1, ndim
+    length = length * array_shape(ii)
+  enddo
+
+  buffer_obj = PyBuffer_FromReadWriteMemory(array_c_loc, length*itemsize)
+  tmp%py_object = buffer_obj
+  
+  ierror = tuple_create(args, 2_PY_SSIZE_T_KIND)
+  if (ierror /= 0_C_INT) then
+    call Py_Decref(buffer_obj)
+    return
+  endif
+  
+  ierror = args%setitem(0_PY_SSIZE_T_KIND, tmp)
+  if (ierror /= 0_C_INT) then
+    call args%destroy
+    call Py_Decref(buffer_obj)
+    return
+  endif
+  
+  ierror = args%setitem(1_PY_SSIZE_T_KIND, dtype)
+  if (ierror /= 0_C_INT) then
+    call args%destroy
+    call Py_Decref(buffer_obj)
+    return
+  endif 
+  
+  numpy%py_object = global_numpy_mod
+  ierror = call_py(retval, numpy, "frombuffer", args)
+  call args%destroy
+  call Py_Decref(buffer_obj)
+  
+  if (ierror == 0_C_INT) then
+    res%py_object = retval%py_object
+  else
+    return
+  endif
+  ! TODO: reshape for ndim > 1
+end function
+#endif
 
 !> Get pointer to data of numpy array
 function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order) result(ierror)
