@@ -3102,7 +3102,7 @@ function ndarray_reshape_helper(reshaped_array, array, new_shape, order) result(
     return
   endif
   
-  ierror = kwargs%setitem("order", "F")
+  ierror = kwargs%setitem("order", order)
   if (ierror /= 0_C_INT) then
     call kwargs%destroy
     call args%destroy
@@ -3619,6 +3619,7 @@ end function
 #:endfor
 
 !------------------ Routines for wrapping values into Python objects ("boxing") ----------------------
+#ifndef PYTHON2
 function box_value_int32_as_long(obj, the_value) result(ierror)
   type(c_ptr), intent(out) :: obj
   integer(kind=int32), intent(in) :: the_value
@@ -3636,6 +3637,7 @@ function box_value_int32_as_long(obj, the_value) result(ierror)
   endif
 
 end function
+#endif
 
 function box_value_int64_as_long(obj, the_value) result(ierror)
   type(c_ptr), intent(out) :: obj
