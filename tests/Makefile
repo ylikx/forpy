@@ -14,11 +14,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 FC=gfortran
-FFLAGS=-Wall -g
+FFLAGS=-Wall -g -O2
 PY_VERSION=3
 
 ifeq ($(FC),ifort)
-  FFLAGS=-warn all -g
+  FFLAGS=-warn all -g -O2
 endif
 
 PYTHON=python3

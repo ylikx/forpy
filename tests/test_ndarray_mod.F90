@@ -791,6 +791,23 @@ subroutine test_dtype_complex128()
   call nd_arr%destroy
 end subroutine
 
+subroutine test_compiler_opt_issue
+  integer ierror
+  type(ndarray) :: nd_arr
+  ! without asynchronous this test fails with ifort -O2
+  integer, asynchronous :: array(1)
+  integer, dimension(:), pointer :: ptr
+  integer :: b
+  array(1) = 5
+  ierror = ndarray_create(nd_arr, array)
+  ierror = nd_arr%get_data(ptr)
+  b = array(1)
+  ptr(1) = 9
+  b = array(1)
+  ASSERT(b==9)
+  call nd_arr%destroy
+end subroutine
+
 ! code to execute before every test
 subroutine setUp()
   call setUp_forpy_test

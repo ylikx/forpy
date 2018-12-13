@@ -313,6 +313,13 @@ following example, you will see how to create a numpy array from a Fortran array
 No copy of the Fortran array is made and storage has to be managed by
 the Fortran programmer.
 
+Since the Fortran array can now be modified not
+only directly but also indirectly by the `ndarray`, it is necessary to
+add the `asynchronous` attribute to the Fortran array declaration, since
+without it compiler optimization related bugs can occur (depending on code,
+compiler and compiler options).
+Alternatively you could also use the `volatile` attribute.
+
 ```Fortran
 program ndarray01
   use forpy_mod
@@ -321,7 +328,11 @@ program ndarray01
   integer, parameter :: NROWS = 2
   integer, parameter :: NCOLS = 3
   integer :: ierror, ii, jj
-  real :: matrix(NROWS, NCOLS)
+  
+  ! add the asynchronous attribute to the Fortran array that is wrapped
+  ! as ndarray to avoid bugs caused by compiler optimizations
+  real, asynchronous :: matrix(NROWS, NCOLS)
+  
   type(ndarray) :: arr
 
   ierror = forpy_initialize()
@@ -336,7 +347,7 @@ program ndarray01
   ierror = ndarray_create(arr, matrix)
   ierror = print_py(arr)
 
-  matrix(1,1) = 1234.0 ! Change also affects 'arr'
+  matrix(1,1) = 1234.0 ! Caution: Change also affects 'arr'
 
   ierror = print_py(arr)
 
@@ -728,7 +739,7 @@ python2 fypp.py forpy_mod.fypp forpy_mod.F90
 ## Building documentation
 
 You can create documentation from the source code with Chris MacMackin's 
-[FORD](https://github.com/cmacmackin/ford) documentation generator:
+[FORD](https://github.com/Fortran-FOSS-Programmers/ford) documentation generator:
 
 ```
 ford forpy_project.md

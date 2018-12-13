@@ -62,6 +62,7 @@ TEST(test_dtype_float32)
 TEST(test_dtype_float64)
 TEST(test_dtype_complex64)
 TEST(test_dtype_complex128)
+TEST(test_compiler_opt_issue)
 call tearDownClass
 
 end program
