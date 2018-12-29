@@ -745,6 +745,27 @@ You can create documentation from the source code with Chris MacMackin's
 ford forpy_project.md
 ```
 
+## Support for debug builds of Python
+
+When using a debug build of Python, one has to define the preprocessor macro `Py_DEBUG` when compiling forpy.
+
+## Running tests with reference count checks
+
+You can run the forpy test suites such that the difference of the total reference count of Python objects
+before and after each test is printed. This helps with detecting reference counting bugs. To do this you need
+a debug build of Python *and* a debug build of numpy. Then build the tests with:
+
+```
+cd tests
+make clean
+make PY_DEBUG=1
+```
+
+If the difference in total reference count is non-zero, the difference is printed before the test status. A
+non-zero difference in total reference count does not necessarily mean that there is an error, for example due to
+internal caching or deleted objects. On the other hand, a difference of zero does not guarantee absence of reference
+count errors. 
+
 # Notes
 
 ## Using forpy with Anaconda
