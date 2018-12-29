@@ -799,7 +799,7 @@ subroutine test_compiler_opt_issue
   integer, dimension(:), pointer :: ptr
   integer :: b
   array(1) = 5
-  ierror = ndarray_create(nd_arr, array)
+  ierror = ndarray_create_nocopy(nd_arr, array)
   ierror = nd_arr%get_data(ptr)
   b = array(1)
   ptr(1) = 9

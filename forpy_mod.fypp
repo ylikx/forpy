@@ -48,11 +48,12 @@ implicit none
 public :: object, type_py, list, dict, tuple, bytes, str, unicode, module_py, &
 NoneType, ndarray, Sequence, MutableSequence, ImmutableSequence, Mapping, &
 tuple_create, list_create, dict_create, bytes_create, str_create, &
-unicode_create, NoneType_create, ndarray_create, ndarray_create_empty, &
-ndarray_create_zeros, ndarray_create_ones, import_py, call_py, call_py_noret, &
-assign_py, cast, cast_nonstrict, PythonMethodTable, PythonModule, forpy_initialize, &
-forpy_initialize_ext, forpy_finalize, is_long, is_list, is_tuple, is_bytes, &
-is_dict, is_float, is_complex, is_bool, is_unicode, is_int, is_str, is_none, &
+unicode_create, NoneType_create, ndarray_create, ndarray_create_nocopy, & 
+ndarray_create_empty, ndarray_create_zeros, ndarray_create_ones, &
+import_py, call_py, call_py_noret, assign_py, cast, cast_nonstrict, &
+PythonMethodTable, PythonModule, forpy_initialize, forpy_initialize_ext, &
+forpy_finalize, is_long, is_list, is_tuple, is_bytes, is_dict, &
+is_float, is_complex, is_bool, is_unicode, is_int, is_str, is_none, &
 is_null, is_ndarray, exception_matches, err_clear, err_print, have_exception, &
 raise_exception, print_py, get_sys_path, run_string, unsafe_cast_from_c_ptr
 
@@ -843,6 +844,8 @@ end interface
 #:set ITEM_TYPES_OUTPUT = ("integer(kind=int32)", "integer(kind=int64)", "real(kind=real32)", "real(kind=real64)", "complex(kind=real32)", "complex(kind=real64)", "logical", "character(kind=C_CHAR), dimension(:), pointer", "character(kind=C_CHAR, len=:), allocatable")
 #:set ITEM_TYPES_INPUT = ("integer(kind=int32)", "integer(kind=int64)", "real(kind=real32)", "real(kind=real64)", "complex(kind=real32)", "complex(kind=real64)", "logical", "character(kind=C_CHAR), dimension(:)", "character(kind=C_CHAR, len=*)")
 
+#:set NDARRAY_MAX_DIMENSION = 4
+
 #:set PYTHON_STANDARD_EXCEPTIONS = ['ArithmeticError', 'AssertionError', 'AttributeError', &
  & 'BaseException', 'BufferError', 'BytesWarning', 'DeprecationWarning', 'EOFError', &
  & 'EnvironmentError', 'Exception', 'FloatingPointError', 'FutureWarning', 'GeneratorExit', & 
@@ -1150,7 +1153,7 @@ end interface
 !> Type that represents a Numpy array
 type, extends(object) :: ndarray
   contains
-#:for NDIM in range(1,5)
+#:for NDIM in range(1, NDARRAY_MAX_DIMENSION + 1)
 #:for TYPE_NAME in ("int32", "int64", "real32", "real64", "complex_real32", "complex_real64")
     procedure, private :: get_data_${TYPE_NAME}$_${NDIM}$d
     !> Retrieve a Fortran pointer to the array data.
@@ -1174,12 +1177,33 @@ type, extends(object) :: ndarray
   generic, public :: ndim => ndarray_ndim_int64
 end type
 
-!> Create a ndarray from a Fortran array. NO copy is made, changes to the Fortran array affect
-!> the ndarray and vice versa. For a real copy use ndarray%copy after creation.
+!> Create a ndarray from a Fortran array. The ndarray will be a copy
+!> of the Fortran array.
 interface ndarray_create
-#:for NDIM in range(1,5)
+#:for NDIM in range(1, NDARRAY_MAX_DIMENSION + 1)
 #:for TYPE_NAME in ("int32", "int64", "real32", "real64", "complex_real32", "complex_real64")
   module procedure ndarray_create_${TYPE_NAME}$_${NDIM}$d
+#:endfor
+#:endfor
+end interface
+
+!> Create a ndarray wrapper for a Fortran array. NO copy is made, changes 
+!> to the Fortran array affect the ndarray and vice versa.
+!>
+!> Only pass contiguous Fortran arrays to this function. This is not checked!
+!>
+!> The lifetime of the Fortran array must be at least as long as the
+!> ndarray is in use: beware of deallocation and compiler generated
+!> temporary arrays.
+!>
+!> Since the Fortran array is used as underlying buffer for the ndarray,
+!> it can be indirectly modified by changing the ndarray. To avoid bugs
+!> related to certain compiler optimizations, declare the Fortran array
+!> with the 'asynchronous' attribute.
+interface ndarray_create_nocopy
+#:for NDIM in range(1, NDARRAY_MAX_DIMENSION + 1)
+#:for TYPE_NAME in ("int32", "int64", "real32", "real64", "complex_real32", "complex_real64")
+  module procedure ndarray_create_nocopy_${TYPE_NAME}$_${NDIM}$d
 #:endfor
 #:endfor
 end interface
@@ -2833,7 +2857,7 @@ end function
 !-----------------------------------------------------------------------------------------------------
 ! Numpy ndarray support
 
-#:for NDIM in range(1, 5)
+#:for NDIM in range(1, NDARRAY_MAX_DIMENSION + 1)
 #:set DIM_SPECIFIER = ",".join((":",) * NDIM)
 #:for TYPE_NAME, FORTRAN_TYPE, FORMATSTR, ITEMSIZE, DTYPE in &
   & (("int32", "integer(kind=int32)", "i", 4, "int32"), &
@@ -2842,11 +2866,13 @@ end function
   &  ("real64", "real(kind=real64)", "d", 8, "float64"), &
   &  ("complex_real32", "complex(kind=real32)", "Zf", 8, "complex64"), &
   &  ("complex_real64", "complex(kind=real64)", "Zd", 16, "complex128"))
-function ndarray_create_${TYPE_NAME}$_${NDIM}$d(res, array) result(ierror)
+function ndarray_create_nocopy_${TYPE_NAME}$_${NDIM}$d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   ${FORTRAN_TYPE}$, dimension(${DIM_SPECIFIER}$), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
@@ -2855,11 +2881,32 @@ function ndarray_create_${TYPE_NAME}$_${NDIM}$d(res, array) result(ierror)
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = ${ITEMSIZE}$_PY_SSIZE_T_KIND
 
 #ifndef PYTHON2  
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "${FORMATSTR}$" // C_NULL_CHAR)
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "${FORMATSTR}$" // C_NULL_CHAR)
 #else  
-  ierror = ndarray_create_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "${DTYPE}$")
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "${DTYPE}$")
 #endif
 
+end function
+
+function ndarray_create_${TYPE_NAME}$_${NDIM}$d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  ${FORTRAN_TYPE}$, dimension(${DIM_SPECIFIER}$), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
+  
+  ${FORTRAN_TYPE}$, dimension(${DIM_SPECIFIER}$), pointer :: ptr
+  
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "${DTYPE}$")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -2907,7 +2954,7 @@ end function
 #:endfor
 
 #ifndef PYTHON2
-function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, format_c_string) result(ierror)
+function ndarray_create_nocopy_helper(res, array_c_loc, array_shape, ndim, itemsize, format_c_string) result(ierror)
   type(ndarray), intent(inout) :: res
   type(c_ptr), intent(in) :: array_c_loc
   integer, intent(in) :: ndim
@@ -2982,11 +3029,11 @@ end function
 #endif
 
 #ifdef PYTHON2
-! Python 2 array creation using old-style, py2-only buffer object + np.frombuffer.
+! Python 2 array wrapper creation using old-style, py2-only buffer object + np.frombuffer.
 ! In principle with Py 2.7 it would be possible to use the same code as 
 ! in the Py 3 case, but the memoryview + np.asarray
 ! approach is somewhat buggy in Py 2 and one reference is lost 
-function ndarray_create_helper_py2(res, array_c_loc, array_shape, ndim, itemsize, dtype) result(ierror)
+function ndarray_create_nocopy_helper_py2(res, array_c_loc, array_shape, ndim, itemsize, dtype) result(ierror)
   type(ndarray), intent(inout) :: res
   type(c_ptr), intent(in) :: array_c_loc
   integer, intent(in) :: ndim
