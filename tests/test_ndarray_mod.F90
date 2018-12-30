@@ -128,7 +128,36 @@ subroutine test_compare_ndarray_2d_with_get_data()
   ierror = nd_arr%get_data(arr2)
   ASSERT(ierror==0)
   ASSERT(all(arr==arr2))
-  ! changes in arr must also affect arr2
+  ! ndarray_create creates copy of Fortran array (initially forpy
+  ! would not copy data, this was changed)
+  ! change in arr does not affect arr2
+  arr(1,1)=98765
+  ASSERT(arr2(1,1)==1)
+
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_compare_ndarray_2d_with_get_data_nocopy()
+  integer :: ierror
+  type(ndarray) :: nd_arr
+  integer(kind=int64), asynchronous :: arr(4,6)
+  integer(kind=int64), pointer :: arr2(:,:)
+  integer ii, jj
+  
+  do ii = 1,4
+    do jj = 1,6
+      arr(ii, jj) = int((ii-1)*6 + jj, kind=int64)
+    enddo
+  enddo
+  
+  ierror = ndarray_create_nocopy(nd_arr, arr)
+  ASSERT(ierror==0)
+  
+  ierror = nd_arr%get_data(arr2)
+  ASSERT(ierror==0)
+  ASSERT(all(arr==arr2))
+  ! ndarray_create_copy uses arr as buffer
+  ! change in arr does not affect arr2
   arr(1,1)=98765
   ASSERT(arr2(1,1)==98765)
 
@@ -805,6 +834,46 @@ subroutine test_compiler_opt_issue
   ptr(1) = 9
   b = array(1)
   ASSERT(b==9)
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_ndarray_create_noncontiguous
+  integer ierror
+  type(ndarray) :: nd_arr
+  integer(kind=int32), target :: test_array(6)
+  integer(kind=int32), dimension(:), pointer :: slice
+  integer(kind=int32), dimension(:), pointer :: ptr
+  
+  test_array = [1, 2, 3, 4, 5, 6]
+  slice => test_array(1:6:2)
+  
+  ierror = ndarray_create(nd_arr, slice)
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr)
+  ASSERT(ierror==0)
+  ASSERT(all(ptr==slice))
+  call nd_arr%destroy
+end subroutine
+
+subroutine test_ndarray_create_nocopy_noncontig_fail
+  ! ndarray_create_nocopy does not support
+  ! non-contig. arrays in contrast to ndarray_create
+  ! This test demonstrates that you get incorrect results
+  ! when passing a non-contig. array
+  integer ierror
+  type(ndarray) :: nd_arr
+  integer(kind=int32), target :: test_array(6)
+  integer(kind=int32), dimension(:), pointer :: slice
+  integer(kind=int32), dimension(:), pointer :: ptr
+  
+  test_array = [1, 2, 3, 4, 5, 6]
+  slice => test_array(1:6:2) ! slice non-contig.
+  
+  ierror = ndarray_create_nocopy(nd_arr, slice)
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr)
+  ASSERT(ierror==0)
+  ASSERT(any(ptr/=slice))
   call nd_arr%destroy
 end subroutine
 

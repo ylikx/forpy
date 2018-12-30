@@ -29,6 +29,7 @@ TEST(test_ndarray_get_data_01)
 TEST(test_check_ndarray_1d)
 TEST(test_check_ndarray_2d)
 TEST(test_compare_ndarray_2d_with_get_data)
+TEST(test_compare_ndarray_2d_with_get_data_nocopy)
 TEST(test_check_ndarray_3d)
 TEST(test_get_ndarray_2d)
 TEST(test_get_ndarray_wrong_order)
@@ -63,6 +64,9 @@ TEST(test_dtype_float64)
 TEST(test_dtype_complex64)
 TEST(test_dtype_complex128)
 TEST(test_compiler_opt_issue)
+TEST(test_ndarray_create_noncontiguous)
+TEST(test_ndarray_create_nocopy_noncontig_fail)
+
 call tearDownClass
 
 end program
