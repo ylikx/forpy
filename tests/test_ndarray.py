@@ -71,4 +71,31 @@ def c_order_expected(x):
     if not x.flags.c_contiguous:
         raise TypeError
 
+def get_test_array(dimension, dtype_string):
+    shape_4d = (7, 5, 3, 2)
+    shape = shape_4d[0:dimension]
+    tmp = np.array(range(1, np.prod(shape)+1), "int64")
+    #tmp[::2] *= -1
+    test_array = np.array(tmp,  dtype_string)
+    test_array = test_array.reshape(shape, order='F')
+
+    if dtype_string in ("complex64", "complex128"):
+        #without imaginary part it would be boring
+        test_array += -3j * test_array
+
+    return test_array
+
+def check_test_array(array_to_check, dimension, dtype_string):
+    if np.dtype(dtype_string) != array_to_check.dtype:
+        raise TypeError("dtypes do not match")
+
+    test_array = get_test_array(dimension, dtype_string)
     
+    if test_array.shape != array_to_check.shape:
+        raise TypeError("shapes do not match")
+    
+    if not np.array_equal(array_to_check, test_array):
+        print(array_to_check)
+        print(test_array)
+        raise ValueError("values do not match")
+	

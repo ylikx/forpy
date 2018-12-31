@@ -877,6 +877,72 @@ subroutine test_ndarray_create_nocopy_noncontig_fail
   call nd_arr%destroy
 end subroutine
 
+subroutine test_ndarray_create_int32_4d
+  integer(kind=int32), allocatable, dimension(:,:,:,:) :: test_array
+  integer(kind=int32), pointer, dimension(:,:,:,:) :: ptr
+  type(ndarray) :: nd_arr
+  type(tuple) :: args
+  integer :: ierror
+  
+  call get_test_array_int32_4d(test_array)
+  
+  ierror = ndarray_create(nd_arr, test_array)
+  ASSERT(ierror==0)
+  ierror = tuple_create(args, 3)
+  ASSERT(ierror==0)
+  ierror = args%setitem(0, nd_arr)
+  ASSERT(ierror==0)
+  ierror = args%setitem(1, 4)
+  ASSERT(ierror==0)
+  ierror = args%setitem(2, "int32")  
+  ASSERT(ierror==0)
+  
+  ierror = call_py_noret(test_mod, "check_test_array", args)
+  ASSERT(ierror==0)
+  
+  ! test copy semantics
+  test_array(1,1,1,1) = 12345
+  ierror = nd_arr%get_data(ptr)
+  ASSERT(ierror==0)
+  ASSERT(ptr(1,1,1,1) == 1)
+  
+  call args%destroy 
+  call nd_arr%destroy  
+end subroutine
+
+subroutine test_ndarray_create_nocopy_int32_4d
+  integer(kind=int32), allocatable, dimension(:,:,:,:), asynchronous :: test_array
+  integer(kind=int32), pointer, dimension(:,:,:,:) :: ptr
+  type(ndarray) :: nd_arr
+  type(tuple) :: args
+  integer :: ierror
+  
+  call get_test_array_int32_4d(test_array)
+  
+  ierror = ndarray_create_nocopy(nd_arr, test_array)
+  ASSERT(ierror==0)
+  ierror = tuple_create(args, 3)
+  ASSERT(ierror==0)
+  ierror = args%setitem(0, nd_arr)
+  ASSERT(ierror==0)
+  ierror = args%setitem(1, 4)
+  ASSERT(ierror==0)
+  ierror = args%setitem(2, "int32")  
+  ASSERT(ierror==0)
+  
+  ierror = call_py_noret(test_mod, "check_test_array", args)
+  ASSERT(ierror==0)
+  
+  ! test nocopy semantics
+  test_array(1,1,1,1) = 12345
+  ierror = nd_arr%get_data(ptr)
+  ASSERT(ierror==0)
+  ASSERT(ptr(1,1,1,1) == 12345)
+  
+  call args%destroy
+  call nd_arr%destroy  
+end subroutine
+
 ! code to execute before every test
 subroutine setUp()
   call setUp_forpy_test
@@ -921,6 +987,39 @@ subroutine tearDownClass()
   call test_mod%destroy
   call forpy_finalize()
   call print_test_count
+end subroutine
+
+!===============================================================================
+!= Test array generation
+!===============================================================================
+
+subroutine get_test_array_int32_4d(test_array)
+  integer(kind=int32), allocatable, dimension(:,:,:,:), intent(out) :: test_array
+  
+  integer, parameter, dimension(4) :: shape_4d = [7, 5, 3, 2]
+  integer, dimension(4) :: strides
+  integer :: x1, x2, x3, x4
+  
+  allocate(test_array(shape_4d(1), shape_4d(2), shape_4d(3), shape_4d(4)))
+  
+  strides(1) = 1
+  strides(2) = strides(1) * shape_4d(1)
+  strides(3) = strides(2) * shape_4d(2)
+  strides(4) = strides(3) * shape_4d(3)
+  
+  do x4 = 0, shape_4d(4) - 1
+    do x3 = 0, shape_4d(3) - 1
+      do x2 = 0, shape_4d(2) - 1
+        do x1 = 0, shape_4d(1) - 1
+          test_array(x1+1, x2+1, x3+1, x4+1) = 1 + strides(1) * x1 + &
+                                                   strides(2) * x2 + &
+                                                   strides(3) * x3 + &
+                                                   strides(4) * x4
+        enddo
+      enddo
+    enddo
+  enddo 
+  
 end subroutine
 
 end module

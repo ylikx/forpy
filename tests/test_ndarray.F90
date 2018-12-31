@@ -67,6 +67,9 @@ TEST(test_compiler_opt_issue)
 TEST(test_ndarray_create_noncontiguous)
 TEST(test_ndarray_create_nocopy_noncontig_fail)
 
+TEST(test_ndarray_create_int32_4d)
+TEST(test_ndarray_create_nocopy_int32_4d)
+
 call tearDownClass
 
 end program
