@@ -95,7 +95,7 @@ def check_test_array(array_to_check, dimension, dtype_string):
         raise TypeError("shapes do not match")
     
     if not np.array_equal(array_to_check, test_array):
-        print(array_to_check)
-        print(test_array)
+        #print(array_to_check)
+        #print(test_array)
         raise ValueError("values do not match")
 	
