@@ -71,6 +71,7 @@ TEST(test_ndarray_create_nocopy_noncontig_fail)
 #:for DTYPE in ("int32", "int64", "float32", "float64", "complex64", "complex128")
 TEST(test_ndarray_create_${DTYPE}$_${NDIM}$d)
 TEST(test_ndarray_create_nocopy_${DTYPE}$_${NDIM}$d)
+TEST(test_get_data_${DTYPE}$_${NDIM}$d)
 #:endfor
 #:endfor
 

@@ -879,6 +879,7 @@ end subroutine
 
 #:for NDIM in range(1, 5)
 #:set DIM_SPECIFIER = ",".join((":",) * NDIM)
+#:set FIRST_INDEX = ",".join(("1",) * NDIM)
 #:for DTYPE, FORTRAN_TYPE, FORTRAN_KIND, CONV_INTRINSIC in (("int32", "integer", "int32", "int"), &
                                                           & ("int64", "integer", "int64", "int"), &
                                                           & ("float32", "real", "real32", "real"), &
@@ -908,11 +909,11 @@ subroutine test_ndarray_create_${DTYPE}$_${NDIM}$d
   ierror = call_py_noret(test_mod, "check_test_array", args)
   ASSERT(ierror==0)
   
-  ! test copy semantics
-  !test_array(1,1,1,1) = 12345
-  !ierror = nd_arr%get_data(ptr)
-  !ASSERT(ierror==0)
-  !ASSERT(ptr(1,1,1,1) == 1)
+  ! test copy semantics - change in nd_arr does not affect test_array and vice versa
+  test_array(${FIRST_INDEX}$) = 12345
+  ierror = nd_arr%get_data(ptr)
+  ASSERT(ierror==0)
+  ASSERT(ptr(${FIRST_INDEX}$) /= 12345)
   
   call args%destroy 
   call nd_arr%destroy  
@@ -941,15 +942,47 @@ subroutine test_ndarray_create_nocopy_${DTYPE}$_${NDIM}$d
   ierror = call_py_noret(test_mod, "check_test_array", args)
   ASSERT(ierror==0)
   
-  ! test nocopy semantics
-  !test_array(1,1,1,1) = 12345
-  !ierror = nd_arr%get_data(ptr)
-  !ASSERT(ierror==0)
-  !ASSERT(ptr(1,1,1,1) == 12345)
+  ! test no-copy semantics - change in nd_arr affects test_array and vice versa
+  test_array(${FIRST_INDEX}$) = 12345
+  ierror = nd_arr%get_data(ptr)
+  ASSERT(ierror==0)
+  ASSERT(ptr(${FIRST_INDEX}$) == 12345)
   
   call args%destroy
   call nd_arr%destroy  
 end subroutine
+
+subroutine test_get_data_${DTYPE}$_${NDIM}$d
+  ${FORTRAN_TYPE}$(kind=${FORTRAN_KIND}$), allocatable, dimension(${DIM_SPECIFIER}$) :: test_array
+  ${FORTRAN_TYPE}$(kind=${FORTRAN_KIND}$), pointer, dimension(${DIM_SPECIFIER}$) :: ptr
+  type(object) :: retval
+  type(ndarray) :: nd_arr
+  type(tuple) :: args
+  integer :: ierror
+  
+  call get_test_array_${DTYPE}$_${NDIM}$d(test_array)
+  
+  ierror = tuple_create(args, 2)
+  ASSERT(ierror==0)
+  ierror = args%setitem(0, ${NDIM}$)
+  ASSERT(ierror==0)
+  ierror = args%setitem(1, "${DTYPE}$")  
+  ASSERT(ierror==0)
+  
+  ierror = call_py(retval, test_mod, "get_test_array", args)
+  ASSERT(ierror==0)
+  ierror = cast(nd_arr, retval)
+  ASSERT(ierror==0)
+  ierror = nd_arr%get_data(ptr)
+  ASSERT(ierror==0)
+  
+  ASSERT(all(test_array==ptr))
+  
+  call retval%destroy
+  call args%destroy
+  call nd_arr%destroy    
+end subroutine
+
 #:endfor
 #:endfor
 
