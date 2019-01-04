@@ -308,20 +308,68 @@ end program
 
 ## Working with arrays
 
-Forpy offers interoperability of Fortran arrays and numpy arrays. In the
-following example, you will see how to create a numpy array from a Fortran array.
-No copy of the Fortran array is made and storage has to be managed by
-the Fortran programmer.
+Forpy offers interoperability of Fortran arrays and numpy arrays through
+the type `ndarray`. In the
+following examples, you will see various ways to create a numpy array.
+
+### Creating a numpy array from a Fortran array
+
+The simplest way to create a numpy array is with `ndarray_create`. This
+function creates a numpy array with the same content as a Fortran array that is
+passed to the function. For example: 
+
+```Fortran
+program ndarray01
+  use forpy_mod
+  implicit none
+
+  integer, parameter :: NROWS = 2
+  integer, parameter :: NCOLS = 3
+  integer :: ierror, ii, jj
+  
+  real :: matrix(NROWS, NCOLS)
+  
+  type(ndarray) :: arr
+
+  ierror = forpy_initialize()
+
+  do jj = 1, NCOLS
+    do ii = 1, NROWS
+      matrix(ii, jj) = real(ii) * jj
+    enddo
+  enddo
+
+  ! creates a numpy array with the same content as 'matrix'
+  ierror = ndarray_create(arr, matrix)
+  
+  ierror = print_py(arr)
+
+  call arr%destroy
+  call forpy_finalize
+
+end program
+```
+
+When arrays get very large, creating a copy might not be what you want. The next section
+describes how to wrap a Fortran array with forpy without making a copy.
+
+### Creating a numpy wrapper for a Fortran array
+
+When creating a numpy array with `ndarray_create_nocopy`, no copy of the Fortran 
+array is made. This is more efficient than `ndarray_create`, but there are
+some things to consider: Changes to the Fortran array affect the numpy array
+and vice versa. You have to make sure that the Fortran array is valid
+as long as the numpy array is in use.
 
 Since the Fortran array can now be modified not
 only directly but also indirectly by the `ndarray`, it is necessary to
 add the `asynchronous` attribute to the Fortran array declaration, since
-without it compiler optimization related bugs can occur (depending on code,
-compiler and compiler options).
+without it compiler optimization related bugs
+can occur (depending on code, compiler and compiler options).
 Alternatively you could also use the `volatile` attribute.
 
 ```Fortran
-program ndarray01
+program ndarray02
   use forpy_mod
   implicit none
 
@@ -344,10 +392,10 @@ program ndarray01
   enddo
 
   ! creates a numpy array that refers to 'matrix'
-  ierror = ndarray_create(arr, matrix)
+  ierror = ndarray_create_nocopy(arr, matrix)
   ierror = print_py(arr)
 
-  matrix(1,1) = 1234.0 ! Caution: Change also affects 'arr'
+  matrix(1,1) = 1234.0 ! Change also affects 'arr'
 
   ierror = print_py(arr)
 
@@ -357,9 +405,11 @@ program ndarray01
 end program
 ```
 
+### Accessing array elements
+
 The following example shows how to access the data of a ndarray with 
-the method `ndarray%get_data`. It also shows how to safely return a ndarray
-from a subroutine. 
+the method `ndarray%get_data`. It also shows how to return a ndarray
+from a subroutine without using a copy of a Fortran array. 
 
 We create a new `ndarray` with the function `ndarray_create_empty`, 
 specifying the shape of the array.
@@ -372,9 +422,9 @@ of ones with `ndarray_create_ones`.
 To edit the values of the array, use the Fortran
 pointer returned from `ndarray%get_data`.
 
-```
+```Fortran
 ! Example of how to return a ndarray from a subroutine
-program ndarray02
+program ndarray03
   use forpy_mod
   use iso_fortran_env, only: real64
   implicit none
@@ -459,10 +509,10 @@ program matplotlib_example
   CONTAINS
 
   subroutine simple_plot(x, y)
-    real, intent(in) :: x(:)
-    real, intent(in) :: y(:)
+    real, asynchronous, intent(in) :: x(:)
+    real, asynchronous, intent(in) :: y(:)
 
-    integer ierror
+    integer :: ierror
     type(module_py) :: plt
     type(tuple) :: args    
     type(ndarray) :: x_arr, y_arr
@@ -480,10 +530,10 @@ program matplotlib_example
       endif
     endif
 
-    ierror = ndarray_create(x_arr, x)
+    ierror = ndarray_create_nocopy(x_arr, x)
     errcheck
 
-    ierror = ndarray_create(y_arr, y)
+    ierror = ndarray_create_nocopy(y_arr, y)
     errcheck
 
     ierror = tuple_create(args, 2)
