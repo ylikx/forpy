@@ -126,7 +126,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
 	  data-placement="bottom" data-html="true"
-	  title="<p> 7.0% of total for procedures.</p>Including implementation: 218 statements, 58.3% of total for procedures.">26 statements</a>
+	  title="<p> 6.5% of total for procedures.</p>Including implementation: 386 statements, 96.5% of total for procedures.">26 statements</a>
      </li> 
      
      
@@ -309,6 +309,8 @@
       
       <a class="list-group-item" href="../interface/ndarray_create_empty.html">ndarray_create_empty</a>
       
+      <a class="list-group-item" href="../interface/ndarray_create_nocopy.html">ndarray_create_nocopy</a>
+      
       <a class="list-group-item" href="../interface/ndarray_create_ones.html">ndarray_create_ones</a>
       
       <a class="list-group-item" href="../interface/ndarray_create_zeros.html">ndarray_create_zeros</a>
@@ -340,8 +342,8 @@
     
     <div class="col-md-9" id='text'>
       <h2>public interface ndarray_create</h2>
-	 <p>Create a ndarray from a Fortran array. NO copy is made, changes to the Fortran array affect
- the ndarray and vice versa. For a real copy use ndarray%copy after creation.</p>
+	 <p>Create a ndarray from a Fortran array. The ndarray will be a copy
+ of the Fortran array.</p>
      
      
     <br>
@@ -486,9 +488,8 @@ private function ndarray_create_int32_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -562,9 +563,8 @@ private function ndarray_create_int64_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -638,9 +638,8 @@ private function ndarray_create_real32_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -714,9 +713,8 @@ private function ndarray_create_real64_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -790,9 +788,8 @@ private function ndarray_create_complex_real32_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -866,9 +863,8 @@ private function ndarray_create_complex_real64_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -942,9 +938,8 @@ private function ndarray_create_int32_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1018,9 +1013,8 @@ private function ndarray_create_int64_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1094,9 +1088,8 @@ private function ndarray_create_real32_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1170,9 +1163,8 @@ private function ndarray_create_real64_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1246,9 +1238,8 @@ private function ndarray_create_complex_real32_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1322,9 +1313,8 @@ private function ndarray_create_complex_real64_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1398,9 +1388,8 @@ private function ndarray_create_int32_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1474,9 +1463,8 @@ private function ndarray_create_int64_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1550,9 +1538,8 @@ private function ndarray_create_real32_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1626,9 +1613,8 @@ private function ndarray_create_real64_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1702,9 +1688,8 @@ private function ndarray_create_complex_real32_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1778,9 +1763,8 @@ private function ndarray_create_complex_real64_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1854,9 +1838,8 @@ private function ndarray_create_int32_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -1930,9 +1913,8 @@ private function ndarray_create_int64_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -2006,9 +1988,8 @@ private function ndarray_create_real32_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -2082,9 +2063,8 @@ private function ndarray_create_real64_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -2158,9 +2138,8 @@ private function ndarray_create_complex_real32_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -2234,9 +2213,8 @@ private function ndarray_create_complex_real64_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -2340,6 +2318,8 @@ private function ndarray_create_complex_real64_4d(res, array) result(ierror)
       
       <a class="list-group-item" href="../interface/ndarray_create_empty.html">ndarray_create_empty</a>
       
+      <a class="list-group-item" href="../interface/ndarray_create_nocopy.html">ndarray_create_nocopy</a>
+      
       <a class="list-group-item" href="../interface/ndarray_create_ones.html">ndarray_create_ones</a>
       
       <a class="list-group-item" href="../interface/ndarray_create_zeros.html">ndarray_create_zeros</a>
@@ -2372,7 +2352,7 @@ private function ndarray_create_complex_real64_4d(res, array) result(ierror)
     <footer>
       <div class="container">
       <div class="row">
-        <div class="col-xs-6 col-md-4"><p>&copy; 2018 </p></div>
+        <div class="col-xs-6 col-md-4"><p>&copy; 2019 </p></div>
         <div class="col-xs-6 col-md-4 col-md-push-4">
           <p class="text-right">
             Documentation generated by 

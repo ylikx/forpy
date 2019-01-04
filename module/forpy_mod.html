@@ -128,7 +128,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
 	  data-placement="bottom" data-html="true"
-	  title="100.0% of total for modules and submodules.">7451 statements</a>
+	  title="100.0% of total for modules and submodules.">7838 statements</a>
      </li> 
      
      
@@ -307,6 +307,8 @@
       <a class="list-group-item" href="../module/forpy_mod.html#interface-assign_py">assign_py</a>
       
       <a class="list-group-item" href="../module/forpy_mod.html#interface-ndarray_create">ndarray_create</a>
+      
+      <a class="list-group-item" href="../module/forpy_mod.html#interface-ndarray_create_nocopy">ndarray_create_nocopy</a>
       
       <a class="list-group-item" href="../module/forpy_mod.html#interface-ndarray_create_empty">ndarray_create_empty</a>
       
@@ -647,6 +649,8 @@
       <a class="list-group-item" href="../module/forpy_mod.html#interface-assign_py">assign_py</a>
       
       <a class="list-group-item" href="../module/forpy_mod.html#interface-ndarray_create">ndarray_create</a>
+      
+      <a class="list-group-item" href="../module/forpy_mod.html#interface-ndarray_create_nocopy">ndarray_create_nocopy</a>
       
       <a class="list-group-item" href="../module/forpy_mod.html#interface-ndarray_create_empty">ndarray_create_empty</a>
       
@@ -3778,8 +3782,8 @@ private subroutine assign_py_NoneType(lhs, rhs)
   
   <div class="panel-body">
     
-    <p>Create a ndarray from a Fortran array. NO copy is made, changes to the Fortran array affect
- the ndarray and vice versa. For a real copy use ndarray%copy after creation.</p>
+    <p>Create a ndarray from a Fortran array. The ndarray will be a copy
+ of the Fortran array.</p>
   </div>
   
   <ul class="list-group">
@@ -3835,9 +3839,8 @@ private function ndarray_create_int32_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -3908,9 +3911,8 @@ private function ndarray_create_int64_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -3981,9 +3983,8 @@ private function ndarray_create_real32_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4054,9 +4055,8 @@ private function ndarray_create_real64_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4127,9 +4127,8 @@ private function ndarray_create_complex_real32_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4200,9 +4199,8 @@ private function ndarray_create_complex_real64_1d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4273,9 +4271,8 @@ private function ndarray_create_int32_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4346,9 +4343,8 @@ private function ndarray_create_int64_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4419,9 +4415,8 @@ private function ndarray_create_real32_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4492,9 +4487,8 @@ private function ndarray_create_real64_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4565,9 +4559,8 @@ private function ndarray_create_complex_real32_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4638,9 +4631,8 @@ private function ndarray_create_complex_real64_2d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4711,9 +4703,8 @@ private function ndarray_create_int32_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4784,9 +4775,8 @@ private function ndarray_create_int64_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4857,9 +4847,8 @@ private function ndarray_create_real32_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -4930,9 +4919,8 @@ private function ndarray_create_real64_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -5003,9 +4991,8 @@ private function ndarray_create_complex_real32_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -5076,9 +5063,8 @@ private function ndarray_create_complex_real64_3d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -5149,9 +5135,8 @@ private function ndarray_create_int32_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -5222,9 +5207,8 @@ private function ndarray_create_int64_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -5295,9 +5279,8 @@ private function ndarray_create_real32_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -5368,9 +5351,8 @@ private function ndarray_create_real64_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -5441,9 +5423,8 @@ private function ndarray_create_complex_real32_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
-  <td>dimension(:,:,:,:), target</td><td>::</td>
-  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
   
 </tr>
 
@@ -5514,9 +5495,1781 @@ private function ndarray_create_complex_real64_4d(res, array) result(ierror)
   <td>intent(in),</td>
   <td></td>
   
+  <td>dimension(:,:,:,:)</td><td>::</td>
+  <td><strong>array</strong></td><td><p>Create a new ndarray with a copy of the data given in 'array'</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+  
+  </ul>
+</div>
+
+    
+	   
+<div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="interface-ndarray_create_nocopy"></span><h3>public interface <a href='../interface/ndarray_create_nocopy.html'>ndarray_create_nocopy</a>
+    
+  </h3></div>
+  
+  <div class="panel-body">
+    
+    <p>Create a ndarray wrapper for a Fortran array. NO copy is made, changes 
+ to the Fortran array affect the ndarray and vice versa.</p>
+  </div>
+  
+  <ul class="list-group">
+  
+  
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_int32_1d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_int64_1d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_real32_1d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_real64_1d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_complex_real32_1d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_complex_real64_1d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_int32_2d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_int64_2d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_real32_2d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_real64_2d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_complex_real32_2d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_complex_real64_2d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_int32_3d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_int64_3d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_real32_3d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_real64_3d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_complex_real32_3d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_complex_real64_3d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_int32_4d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
   <td>dimension(:,:,:,:), target</td><td>::</td>
   <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
- vice versa.</p></td>
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_int64_4d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>integer(kind=int64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_real32_4d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_real64_4d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>real(kind=real64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_complex_real32_4d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real32),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+      
+    
+    
+
+  
+  
+  
+  
+     <h4>Return Value <small>integer(kind=C_INT)
+  </small></h4>
+  <p>Error code, 0 on success</p>
+    
+
+    </li>
+  
+    <li class="list-group-item">
+    
+    
+    <h3>
+private function ndarray_create_nocopy_complex_real64_4d(res, array) result(ierror)
+    
+    
+	 
+</h3>
+    
+    
+    <h4>Arguments</h4>
+    
+      
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>type(<a href='../type/ndarray.html'>ndarray</a>),</td>
+  <td>intent(out)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>res</strong></td><td><p>The resulting ndarray (in Fortran storage order).</p></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" ></span>complex(kind=real64),</td>
+  <td>intent(in),</td>
+  <td></td>
+  
+  <td>dimension(:,:,:,:), target</td><td>::</td>
+  <td><strong>array</strong></td><td><p>The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
+ vice versa. MUST be a contiguous array (this is not checked).</p></td>
   
 </tr>
 
@@ -13866,7 +15619,7 @@ public subroutine <a href='../proc/unsafe_cast_from_c_ptr.html'>unsafe_cast_from
     <footer>
       <div class="container">
       <div class="row">
-        <div class="col-xs-6 col-md-4"><p>&copy; 2018 </p></div>
+        <div class="col-xs-6 col-md-4"><p>&copy; 2019 </p></div>
         <div class="col-xs-6 col-md-4 col-md-push-4">
           <p class="text-right">
             Documentation generated by 

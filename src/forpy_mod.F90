@@ -47,11 +47,12 @@ implicit none
 public :: object, type_py, list, dict, tuple, bytes, str, unicode, module_py, &
 NoneType, ndarray, Sequence, MutableSequence, ImmutableSequence, Mapping, &
 tuple_create, list_create, dict_create, bytes_create, str_create, &
-unicode_create, NoneType_create, ndarray_create, ndarray_create_empty, &
-ndarray_create_zeros, ndarray_create_ones, import_py, call_py, call_py_noret, &
-assign_py, cast, cast_nonstrict, PythonMethodTable, PythonModule, forpy_initialize, &
-forpy_initialize_ext, forpy_finalize, is_long, is_list, is_tuple, is_bytes, &
-is_dict, is_float, is_complex, is_bool, is_unicode, is_int, is_str, is_none, &
+unicode_create, NoneType_create, ndarray_create, ndarray_create_nocopy, & 
+ndarray_create_empty, ndarray_create_zeros, ndarray_create_ones, &
+import_py, call_py, call_py_noret, assign_py, cast, cast_nonstrict, &
+PythonMethodTable, PythonModule, forpy_initialize, forpy_initialize_ext, &
+forpy_finalize, is_long, is_list, is_tuple, is_bytes, is_dict, &
+is_float, is_complex, is_bool, is_unicode, is_int, is_str, is_none, &
 is_null, is_ndarray, exception_matches, err_clear, err_print, have_exception, &
 raise_exception, print_py, get_sys_path, run_string, unsafe_cast_from_c_ptr
 
@@ -102,15 +103,26 @@ type, bind(c) :: Py_buffer
   type(c_ptr) :: shape
   type(c_ptr) :: strides
   type(c_ptr) :: suboffsets
+#ifdef PYTHON2
+  integer(kind=PY_SSIZE_T_KIND) :: smalltable(2)
+#endif
   type(c_ptr) :: internal
 end type
 
 type, bind(c) :: PyObject
+#ifdef Py_DEBUG
+    type(c_ptr) :: ob_next
+    type(c_ptr) :: ob_prev
+#endif
     integer(kind=PY_SSIZE_T_KIND) :: ob_refcnt
     type(c_ptr) :: ob_type
 end type
 
 type, bind(c) :: PyTypeObject
+#ifdef Py_DEBUG
+    type(c_ptr) :: ob_next
+    type(c_ptr) :: ob_prev
+#endif
     integer(kind=PY_SSIZE_T_KIND) :: ob_refcnt
     type(c_ptr) :: ob_type
     integer(kind=PY_SSIZE_T_KIND) :: ob_size
@@ -723,7 +735,11 @@ function PySys_GetObject(a_name) bind(c, name="PySys_GetObject") result(r)
 end function
 
 #ifndef PYTHON2
+#ifndef Py_DEBUG
 function PyModule_Create2(def, module_api_version) bind(c, name="PyModule_Create2") result(r)
+#else
+function PyModule_Create2(def, module_api_version) bind(c, name="PyModule_Create2TraceRefs") result(r)
+#endif
   import c_ptr, C_INT
   type(c_ptr), value :: def
   integer(kind=C_INT), value :: module_api_version
@@ -735,9 +751,17 @@ end function
 !Python 2 only
 !PyObject* Py_InitModule4(char *name, PyMethodDef *methods, char *doc, PyObject *self, int apiver)
 #ifndef PYTHON2_32
+#ifndef Py_DEBUG
 function Py_InitModule4(a_name, methods, doc, self, apiver) bind(c, name="Py_InitModule4_64") result(r)
 #else
+function Py_InitModule4(a_name, methods, doc, self, apiver) bind(c, name="Py_InitModule4TraceRefs_64") result(r)
+#endif
+#else
+#ifndef Py_DEBUG
 function Py_InitModule4(a_name, methods, doc, self, apiver) bind(c, name="Py_InitModule4") result(r)
+#else
+function Py_InitModule4(a_name, methods, doc, self, apiver) bind(c, name="Py_InitModule4TraceRefs") result(r)
+#endif
 #endif
   import c_ptr, C_CHAR, C_INT
   character(kind=C_CHAR), dimension(*) :: a_name
@@ -757,6 +781,17 @@ function PyModule_AddObject(a_module, a_name, a_value) bind(c, name="PyModule_Ad
   type(c_ptr), value :: a_value
   integer(kind=C_INT) :: r
 end function
+
+#ifdef PYTHON2
+! Old-style Python2-only buffer protocol API function
+!PyObject* PyBuffer_FromReadWriteMemory(void *ptr, Py_ssize_t size)
+function PyBuffer_FromReadWriteMemory(ptr, the_size) bind(c, name="PyBuffer_FromReadWriteMemory") result(r)
+  import c_ptr, PY_SSIZE_T_KIND
+  type(c_ptr), value :: ptr
+  integer(kind=PY_SSIZE_T_KIND), value :: the_size
+  type(c_ptr) :: r
+end function
+#endif
 
 function strcmp(s1, s2) bind(c) result(r)
   import c_ptr, C_INT
@@ -795,7 +830,13 @@ interface unbox_value
   module procedure unbox_value_char_1d
 end interface
 
+interface tuple_from_array
+  module procedure tuple_from_array_int32
+  module procedure tuple_from_array_int64
+end interface
+
 !--------- High-level API to Python's datastructures -------------------
+
 
 
 
@@ -1618,8 +1659,8 @@ type, extends(object) :: ndarray
   generic, public :: ndim => ndarray_ndim_int64
 end type
 
-!> Create a ndarray from a Fortran array. NO copy is made, changes to the Fortran array affect
-!> the ndarray and vice versa. For a real copy use ndarray%copy after creation.
+!> Create a ndarray from a Fortran array. The ndarray will be a copy
+!> of the Fortran array.
 interface ndarray_create
   module procedure ndarray_create_int32_1d
   module procedure ndarray_create_int64_1d
@@ -1645,6 +1686,46 @@ interface ndarray_create
   module procedure ndarray_create_real64_4d
   module procedure ndarray_create_complex_real32_4d
   module procedure ndarray_create_complex_real64_4d
+end interface
+
+!> Create a ndarray wrapper for a Fortran array. NO copy is made, changes 
+!> to the Fortran array affect the ndarray and vice versa.
+!>
+!> Only pass contiguous Fortran arrays to this function. This is not checked!
+!>
+!> The lifetime of the Fortran array must be at least as long as the
+!> ndarray is in use: beware of deallocation and compiler generated
+!> temporary arrays.
+!>
+!> Since the Fortran array is used as underlying buffer for the ndarray,
+!> it can be indirectly modified by changing the ndarray. To avoid bugs
+!> related to certain compiler optimizations, declare the Fortran array
+!> with the 'asynchronous' attribute.
+interface ndarray_create_nocopy
+  module procedure ndarray_create_nocopy_int32_1d
+  module procedure ndarray_create_nocopy_int64_1d
+  module procedure ndarray_create_nocopy_real32_1d
+  module procedure ndarray_create_nocopy_real64_1d
+  module procedure ndarray_create_nocopy_complex_real32_1d
+  module procedure ndarray_create_nocopy_complex_real64_1d
+  module procedure ndarray_create_nocopy_int32_2d
+  module procedure ndarray_create_nocopy_int64_2d
+  module procedure ndarray_create_nocopy_real32_2d
+  module procedure ndarray_create_nocopy_real64_2d
+  module procedure ndarray_create_nocopy_complex_real32_2d
+  module procedure ndarray_create_nocopy_complex_real64_2d
+  module procedure ndarray_create_nocopy_int32_3d
+  module procedure ndarray_create_nocopy_int64_3d
+  module procedure ndarray_create_nocopy_real32_3d
+  module procedure ndarray_create_nocopy_real64_3d
+  module procedure ndarray_create_nocopy_complex_real32_3d
+  module procedure ndarray_create_nocopy_complex_real64_3d
+  module procedure ndarray_create_nocopy_int32_4d
+  module procedure ndarray_create_nocopy_int64_4d
+  module procedure ndarray_create_nocopy_real32_4d
+  module procedure ndarray_create_nocopy_real64_4d
+  module procedure ndarray_create_nocopy_complex_real32_4d
+  module procedure ndarray_create_nocopy_complex_real64_4d
 end interface
 
 !> Creates an empty ndarray of given shape. Array contains uninitialised values.
@@ -4301,10 +4382,11 @@ function object_getattribute(self, attr, attr_name) result(ierror)
     return
   endif
 
+  call Py_Decref(attr_name_str)
+
   if (.not. c_associated(attr%py_object)) then
     ierror = EXCEPTION_ERROR
   endif
-
 end function
 
 function object_setattr(self, attr_name, attr_value) result(ierror)
@@ -4319,6 +4401,7 @@ function object_setattr(self, attr_name, attr_value) result(ierror)
 
   if (ierror == 0_C_INT) then
     ierror = PyObject_SetAttr(self%py_object, attr_name_str, attr_value%py_object)
+    call Py_Decref(attr_name_str)
   endif
 end function
 
@@ -4332,6 +4415,7 @@ function object_delattr(self, attr_name) result(ierror)
 
   if (ierror == 0_C_INT) then
     ierror = PyObject_SetAttr(self%py_object, attr_name_str, C_NULL_PTR)
+    call Py_Decref(attr_name_str)
   endif
 end function
 
@@ -7095,20 +7179,47 @@ end function
 !-----------------------------------------------------------------------------------------------------
 ! Numpy ndarray support
 
-function ndarray_create_int32_1d(res, array) result(ierror)
+function ndarray_create_nocopy_int32_1d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   integer(kind=int32), dimension(:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int32")
+#endif
+
+end function
+
+function ndarray_create_int32_1d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  integer(kind=int32), dimension(:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
+  integer(kind=int32), dimension(:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "int32")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7152,20 +7263,47 @@ function get_data_int32_1d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_int64_1d(res, array) result(ierror)
+function ndarray_create_nocopy_int64_1d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   integer(kind=int64), dimension(:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int64")
+#endif
+
+end function
+
+function ndarray_create_int64_1d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  integer(kind=int64), dimension(:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
+  integer(kind=int64), dimension(:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "int64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7209,20 +7347,47 @@ function get_data_int64_1d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_real32_1d(res, array) result(ierror)
+function ndarray_create_nocopy_real32_1d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   real(kind=real32), dimension(:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float32")
+#endif
+
+end function
+
+function ndarray_create_real32_1d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  real(kind=real32), dimension(:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
+  real(kind=real32), dimension(:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "float32")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7266,20 +7431,47 @@ function get_data_real32_1d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_real64_1d(res, array) result(ierror)
+function ndarray_create_nocopy_real64_1d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   real(kind=real64), dimension(:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float64")
+#endif
+
+end function
+
+function ndarray_create_real64_1d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  real(kind=real64), dimension(:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
+  real(kind=real64), dimension(:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "float64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7323,20 +7515,47 @@ function get_data_real64_1d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_complex_real32_1d(res, array) result(ierror)
+function ndarray_create_nocopy_complex_real32_1d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   complex(kind=real32), dimension(:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex64")
+#endif
+
+end function
+
+function ndarray_create_complex_real32_1d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  complex(kind=real32), dimension(:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
+  complex(kind=real32), dimension(:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "complex64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7380,20 +7599,47 @@ function get_data_complex_real32_1d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_complex_real64_1d(res, array) result(ierror)
+function ndarray_create_nocopy_complex_real64_1d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   complex(kind=real64), dimension(:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 1
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 16_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex128")
+#endif
+
+end function
+
+function ndarray_create_complex_real64_1d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  complex(kind=real64), dimension(:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
+  complex(kind=real64), dimension(:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "complex128")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7437,20 +7683,47 @@ function get_data_complex_real64_1d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_int32_2d(res, array) result(ierror)
+function ndarray_create_nocopy_int32_2d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   integer(kind=int32), dimension(:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int32")
+#endif
+
+end function
+
+function ndarray_create_int32_2d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  integer(kind=int32), dimension(:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
+  integer(kind=int32), dimension(:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "int32")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7494,20 +7767,47 @@ function get_data_int32_2d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_int64_2d(res, array) result(ierror)
+function ndarray_create_nocopy_int64_2d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   integer(kind=int64), dimension(:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int64")
+#endif
+
+end function
+
+function ndarray_create_int64_2d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  integer(kind=int64), dimension(:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
+  integer(kind=int64), dimension(:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "int64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7551,20 +7851,47 @@ function get_data_int64_2d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_real32_2d(res, array) result(ierror)
+function ndarray_create_nocopy_real32_2d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   real(kind=real32), dimension(:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float32")
+#endif
+
+end function
+
+function ndarray_create_real32_2d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  real(kind=real32), dimension(:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
+  real(kind=real32), dimension(:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "float32")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7608,20 +7935,47 @@ function get_data_real32_2d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_real64_2d(res, array) result(ierror)
+function ndarray_create_nocopy_real64_2d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   real(kind=real64), dimension(:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float64")
+#endif
+
+end function
+
+function ndarray_create_real64_2d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  real(kind=real64), dimension(:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
+  real(kind=real64), dimension(:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "float64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7665,20 +8019,47 @@ function get_data_real64_2d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_complex_real32_2d(res, array) result(ierror)
+function ndarray_create_nocopy_complex_real32_2d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   complex(kind=real32), dimension(:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex64")
+#endif
+
+end function
+
+function ndarray_create_complex_real32_2d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  complex(kind=real32), dimension(:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
+  complex(kind=real32), dimension(:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "complex64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7722,20 +8103,47 @@ function get_data_complex_real32_2d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_complex_real64_2d(res, array) result(ierror)
+function ndarray_create_nocopy_complex_real64_2d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   complex(kind=real64), dimension(:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 2
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 16_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex128")
+#endif
+
+end function
+
+function ndarray_create_complex_real64_2d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  complex(kind=real64), dimension(:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
+  complex(kind=real64), dimension(:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "complex128")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7779,20 +8187,47 @@ function get_data_complex_real64_2d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_int32_3d(res, array) result(ierror)
+function ndarray_create_nocopy_int32_3d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   integer(kind=int32), dimension(:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int32")
+#endif
+
+end function
+
+function ndarray_create_int32_3d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  integer(kind=int32), dimension(:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
+  integer(kind=int32), dimension(:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "int32")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7836,20 +8271,47 @@ function get_data_int32_3d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_int64_3d(res, array) result(ierror)
+function ndarray_create_nocopy_int64_3d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   integer(kind=int64), dimension(:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int64")
+#endif
+
+end function
+
+function ndarray_create_int64_3d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  integer(kind=int64), dimension(:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
+  integer(kind=int64), dimension(:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "int64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7893,20 +8355,47 @@ function get_data_int64_3d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_real32_3d(res, array) result(ierror)
+function ndarray_create_nocopy_real32_3d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   real(kind=real32), dimension(:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float32")
+#endif
+
+end function
+
+function ndarray_create_real32_3d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  real(kind=real32), dimension(:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
+  real(kind=real32), dimension(:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "float32")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -7950,20 +8439,47 @@ function get_data_real32_3d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_real64_3d(res, array) result(ierror)
+function ndarray_create_nocopy_real64_3d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   real(kind=real64), dimension(:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float64")
+#endif
+
+end function
+
+function ndarray_create_real64_3d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  real(kind=real64), dimension(:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
+  real(kind=real64), dimension(:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "float64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8007,20 +8523,47 @@ function get_data_real64_3d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_complex_real32_3d(res, array) result(ierror)
+function ndarray_create_nocopy_complex_real32_3d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   complex(kind=real32), dimension(:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex64")
+#endif
+
+end function
+
+function ndarray_create_complex_real32_3d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  complex(kind=real32), dimension(:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
+  complex(kind=real32), dimension(:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "complex64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8064,20 +8607,47 @@ function get_data_complex_real32_3d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_complex_real64_3d(res, array) result(ierror)
+function ndarray_create_nocopy_complex_real64_3d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   complex(kind=real64), dimension(:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 3
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 16_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex128")
+#endif
+
+end function
+
+function ndarray_create_complex_real64_3d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  complex(kind=real64), dimension(:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
+  complex(kind=real64), dimension(:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "complex128")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8121,20 +8691,47 @@ function get_data_complex_real64_3d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_int32_4d(res, array) result(ierror)
+function ndarray_create_nocopy_int32_4d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   integer(kind=int32), dimension(:,:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int32")
+#endif
+
+end function
+
+function ndarray_create_int32_4d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  integer(kind=int32), dimension(:,:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "i" // C_NULL_CHAR)
+  integer(kind=int32), dimension(:,:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "int32")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8178,20 +8775,47 @@ function get_data_int32_4d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_int64_4d(res, array) result(ierror)
+function ndarray_create_nocopy_int64_4d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   integer(kind=int64), dimension(:,:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "int64")
+#endif
+
+end function
+
+function ndarray_create_int64_4d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  integer(kind=int64), dimension(:,:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "l" // C_NULL_CHAR)
+  integer(kind=int64), dimension(:,:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "int64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8235,20 +8859,47 @@ function get_data_int64_4d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_real32_4d(res, array) result(ierror)
+function ndarray_create_nocopy_real32_4d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   real(kind=real32), dimension(:,:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 4_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float32")
+#endif
+
+end function
+
+function ndarray_create_real32_4d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  real(kind=real32), dimension(:,:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "f" // C_NULL_CHAR)
+  real(kind=real32), dimension(:,:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "float32")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8292,20 +8943,47 @@ function get_data_real32_4d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_real64_4d(res, array) result(ierror)
+function ndarray_create_nocopy_real64_4d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   real(kind=real64), dimension(:,:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "float64")
+#endif
+
+end function
+
+function ndarray_create_real64_4d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  real(kind=real64), dimension(:,:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "d" // C_NULL_CHAR)
+  real(kind=real64), dimension(:,:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "float64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8349,20 +9027,47 @@ function get_data_real64_4d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_complex_real32_4d(res, array) result(ierror)
+function ndarray_create_nocopy_complex_real32_4d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   complex(kind=real32), dimension(:,:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 8_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex64")
+#endif
+
+end function
+
+function ndarray_create_complex_real32_4d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  complex(kind=real32), dimension(:,:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zf" // C_NULL_CHAR)
+  complex(kind=real32), dimension(:,:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "complex64")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8406,20 +9111,47 @@ function get_data_complex_real32_4d(self, ptr, order) result(ierror)
   endif
 end function
 
-function ndarray_create_complex_real64_4d(res, array) result(ierror)
+function ndarray_create_nocopy_complex_real64_4d(res, array) result(ierror)
   !> The resulting ndarray (in Fortran storage order).
   type(ndarray), intent(out) :: res
   !> The Fortran array to wrap as ndarray. NO copy is made. Changes to the ndarray affect the Fortran array and
-  !> vice versa.
+  !> vice versa. MUST be a contiguous array (this is not checked).
+  ! Note: can not use the F2008 CONTIGUOUS attribute here, because a 
+  ! temporary copy of array could be created with limited lifetime.
   complex(kind=real64), dimension(:,:,:,:), target, intent(in) :: array
   !> Error code, 0 on success
   integer(kind=C_INT) :: ierror
   
   integer, parameter :: NDIM = 4
   integer(kind=PY_SSIZE_T_KIND), parameter :: ITEMSIZE = 16_PY_SSIZE_T_KIND
+
+#ifndef PYTHON2  
+  ierror = ndarray_create_nocopy_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
+#else  
+  ierror = ndarray_create_nocopy_helper_py2(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "complex128")
+#endif
+
+end function
+
+function ndarray_create_complex_real64_4d(res, array) result(ierror)
+  !> The resulting ndarray (in Fortran storage order).
+  type(ndarray), intent(out) :: res
+  !> Create a new ndarray with a copy of the data given in 'array'
+  complex(kind=real64), dimension(:,:,:,:), intent(in) :: array
+  !> Error code, 0 on success
+  integer(kind=C_INT) :: ierror
   
-  ierror = ndarray_create_helper(res, c_loc(array), shape(array, kind=PY_SSIZE_T_KIND), NDIM, ITEMSIZE, "Zd" // C_NULL_CHAR)
+  complex(kind=real64), dimension(:,:,:,:), pointer :: ptr
   
+  ierror = ndarray_create_empty(res, shape(array, kind=PY_SSIZE_T_KIND), "complex128")
+  if (ierror /= 0_C_INT) return
+  ierror = res%get_data(ptr)
+  if (ierror /= 0_C_INT) then
+    call res%destroy
+    res%py_object = C_NULL_PTR
+    return
+  endif
+  ptr = array
 end function
 
 !> Get pointer to data of numpy array
@@ -8464,7 +9196,8 @@ function get_data_complex_real64_4d(self, ptr, order) result(ierror)
 end function
 
 
-function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, format_c_string) result(ierror)
+#ifndef PYTHON2
+function ndarray_create_nocopy_helper(res, array_c_loc, array_shape, ndim, itemsize, format_c_string) result(ierror)
   type(ndarray), intent(inout) :: res
   type(c_ptr), intent(in) :: array_c_loc
   integer, intent(in) :: ndim
@@ -8483,6 +9216,7 @@ function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, fo
   !TODO: check if numpy was successfully imported
 
   ierror = 0_C_INT
+  res%py_object = C_NULL_PTR
   
   length = 1
   do ii = 1, ndim
@@ -8502,12 +9236,14 @@ function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, fo
   buffer%shape = c_loc(array_shape)
   buffer%strides = c_loc(strides)
   buffer%suboffsets = C_NULL_PTR
+#ifdef PYTHON2
+  buffer%smalltable = 0_PY_SSIZE_T_KIND
+#endif
   buffer%internal = C_NULL_PTR
 
   mem_view = PyMemoryView_FromBuffer(buffer)
   if (.not. c_associated(mem_view)) then
-    ierror = -1_C_INT ! TODO: set exception
-    res%py_object = C_NULL_PTR
+    ierror = -1_C_INT
     return
   endif
 
@@ -8515,21 +9251,166 @@ function ndarray_create_helper(res, array_c_loc, array_shape, ndim, itemsize, fo
   if (c_associated(args)) then
     ierror = PyTuple_SetItem(args, 0_PY_SSIZE_T_KIND, mem_view) ! steals reference to mem_view even if it fails
 
-    if (ierror /= 0) then
+    if (ierror /= 0_C_INT) then
       call Py_Decref(args)
-      res%py_object = C_NULL_PTR
       return
     endif
-
+    
     res%py_object = PyObject_Call(global_numpy_asarray_method, args, C_NULL_PTR)
     call Py_Decref(args)
 
     if (.not. c_associated(res%py_object)) then
       ierror = -1_C_INT
     endif
+    
+  else ! .not. c_associated(args)
+    call Py_Decref(mem_view)
+    ierror = -1_C_INT
   endif
 
 end function
+#endif
+
+#ifdef PYTHON2
+! Python 2 array wrapper creation using old-style, py2-only buffer object + np.frombuffer.
+! In principle with Py 2.7 it would be possible to use the same code as 
+! in the Py 3 case, but the memoryview + np.asarray
+! approach is somewhat buggy in Py 2 and one reference is lost 
+function ndarray_create_nocopy_helper_py2(res, array_c_loc, array_shape, ndim, itemsize, dtype) result(ierror)
+  type(ndarray), intent(inout) :: res
+  type(c_ptr), intent(in) :: array_c_loc
+  integer, intent(in) :: ndim
+  integer(kind=PY_SSIZE_T_KIND), target, dimension(ndim), intent(in) :: array_shape
+  integer(kind=PY_SSIZE_T_KIND) :: itemsize
+  character(kind=C_CHAR, len=*), target, intent(in) :: dtype 
+  integer(kind=C_INT) :: ierror
+
+  integer(kind=PY_SSIZE_T_KIND) :: length
+  type(c_ptr) :: buffer_obj
+  type(module_py) :: numpy
+  type(tuple) :: args
+  type(object) :: retval
+  type(object) :: buffer
+  type(ndarray) :: reshaped_array
+  integer :: ii
+
+  ierror = -1_C_INT
+  res%py_object = C_NULL_PTR
+  
+  length = 1
+  do ii = 1, ndim
+    length = length * array_shape(ii)
+  enddo
+
+  buffer_obj = PyBuffer_FromReadWriteMemory(array_c_loc, length*itemsize)
+  if (.not. c_associated(buffer_obj)) then
+    return
+  endif
+  
+  buffer%py_object = buffer_obj
+  
+  ierror = tuple_create(args, 2_PY_SSIZE_T_KIND)
+  if (ierror /= 0_C_INT) then
+    call buffer%destroy
+    return
+  endif
+  
+  ierror = args%setitem(0_PY_SSIZE_T_KIND, buffer)
+  if (ierror /= 0_C_INT) then
+    call args%destroy
+    call buffer%destroy
+    return
+  endif
+  
+  ierror = args%setitem(1_PY_SSIZE_T_KIND, dtype)
+  if (ierror /= 0_C_INT) then
+    call args%destroy
+    call buffer%destroy
+    return
+  endif 
+  
+  numpy%py_object = global_numpy_mod
+  ierror = call_py(retval, numpy, "frombuffer", args)
+  call args%destroy
+  call buffer%destroy
+  
+  if (ierror == 0_C_INT) then
+    res%py_object = retval%py_object
+  else
+    call retval%destroy
+    return
+  endif
+  
+  if (ndim > 1) then
+    ierror = ndarray_reshape_helper(reshaped_array, res, array_shape, 'F')
+    call res%destroy
+    
+    if (ierror == 0_C_INT) then
+      res%py_object = reshaped_array%py_object
+    else
+      res%py_object = C_NULL_PTR
+    endif
+  endif
+end function
+
+function ndarray_reshape_helper(reshaped_array, array, new_shape, order) result(ierror)
+  type(ndarray), intent(out) :: reshaped_array
+  class(ndarray), intent(in) :: array
+  integer(kind=PY_SSIZE_T_KIND), dimension(:), intent(in) :: new_shape
+  character(kind=C_CHAR), intent(in) :: order
+  integer(kind=C_INT) :: ierror
+  
+  type(tuple) :: args
+  type(dict) :: kwargs
+  type(tuple) :: new_shape_tuple
+  type(object) :: retval
+  
+  reshaped_array%py_object = C_NULL_PTR
+  
+  ierror = tuple_from_array(new_shape_tuple, new_shape)
+  if (ierror /= 0_C_INT) then
+    return
+  endif
+  
+  ierror = tuple_create(args, 1_PY_SSIZE_T_KIND)
+  if (ierror /= 0_C_INT) then
+    call new_shape_tuple%destroy
+    return
+  endif
+  
+  ierror = args%setitem(0_PY_SSIZE_T_KIND, new_shape_tuple)
+  if (ierror /= 0_C_INT) then
+    call args%destroy
+    call new_shape_tuple%destroy
+    return
+  endif
+  
+  ierror = dict_create(kwargs)
+  if (ierror /= 0_C_INT) then
+    call args%destroy
+    call new_shape_tuple%destroy
+    return
+  endif
+  
+  ierror = kwargs%setitem("order", order)
+  if (ierror /= 0_C_INT) then
+    call kwargs%destroy
+    call args%destroy
+    call new_shape_tuple%destroy
+    return
+  endif   
+  
+  ierror = call_py(retval, array, "reshape", args, kwargs)
+  if (ierror == 0_C_INT) then
+    ierror = cast(reshaped_array, retval)
+    call retval%destroy
+  endif
+  
+  call kwargs%destroy
+  call args%destroy
+  call new_shape_tuple%destroy 
+end function
+#endif
 
 !> Get pointer to data of numpy array
 function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order) result(ierror)
@@ -8545,8 +9426,6 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
   integer(kind=PY_SSIZE_T_KIND), dimension(:), pointer :: shape_ptr
   integer :: shape_info_shape(1)
   character(kind=C_CHAR) :: detected_order
-
-  type(c_ptr) :: mem_view
   character(kind=C_CHAR,len=60) :: error_message
 
   ! order can have values 'C', 'F' or 'A'
@@ -8557,18 +9436,10 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
   endif
 
   shape_info_shape(1) = ndim
-  mem_view = PyMemoryView_FromObject(self%py_object)
-
-  ierror = 0_C_INT
-  if (.not. c_associated(mem_view)) then
-    ierror = -1
-    return
-  endif
 
   ! raises BufferError exception if array is not contiguous, Python 2: ValueError
-  ierror = PyObject_GetBuffer(mem_view, buffer, 156_C_INT) !flags (PyBUF_FORMAT | PyBUF_ANY_CONTIGUOUS) - we need the format info and PyBUF_FORMAT alone gives error
-  call Py_Decref(mem_view)
-
+  ierror = PyObject_GetBuffer(self%py_object, buffer, 156_C_INT) !flags (PyBUF_FORMAT | PyBUF_ANY_CONTIGUOUS) - we need the format info and PyBUF_FORMAT alone gives error
+  
   if (ierror /= 0) then
     if (exception_matches(BufferError) .or. exception_matches(ValueError)) then ! make error message more informative
       call err_clear
@@ -8597,15 +9468,15 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
     else
       error_message = "forpy: expected contiguous array"
     endif
-    call raise_exception(BufferError, error_message)
     call PyBuffer_Release(buffer)
+    call raise_exception(BufferError, error_message)
     return
   endif
 
   if (buffer%ndim /= ndim) then
-    call PyBuffer_Release(buffer)
     ierror = EXCEPTION_ERROR
     write(error_message,fmt="('forpy: expected array of rank ',I1,', got array of rank ',I1)") ndim, buffer%ndim
+    call PyBuffer_Release(buffer)
     call raise_exception(TypeError, error_message)
     return
   endif
@@ -8617,19 +9488,19 @@ function get_data_helper(self, raw_ptr, shape_info, ndim, format_c_string, order
   if (associated(shape_ptr)) then
     if (get_data_helper_check_dtype(buffer%format, format_c_string) /= 0) then
       ierror = EXCEPTION_ERROR
+      call PyBuffer_Release(buffer)
       call raise_exception(TypeError, "forpy: ndarray%get_data - datatype of data pointer is incompatible with ndarray")
+      return
     endif
   else
     ierror = EXCEPTION_ERROR
-    call raise_exception(RuntimeError, "forpy: Could not determine shape of ndarray")
-  endif
-
-  if (ierror /= 0_C_INT) then
     call PyBuffer_Release(buffer)
+    call raise_exception(RuntimeError, "forpy: Could not determine shape of ndarray")
     return
   endif
 
   raw_ptr = buffer%buf
+
   call get_shape_info_helper(shape_info, shape_ptr, detected_order)
   call PyBuffer_Release(buffer)
 
@@ -9440,6 +10311,7 @@ end function
 
 
 !------------------ Routines for wrapping values into Python objects ("boxing") ----------------------
+#ifndef PYTHON2
 function box_value_int32_as_long(obj, the_value) result(ierror)
   type(c_ptr), intent(out) :: obj
   integer(kind=int32), intent(in) :: the_value
@@ -9457,6 +10329,7 @@ function box_value_int32_as_long(obj, the_value) result(ierror)
   endif
 
 end function
+#endif
 
 function box_value_int64_as_long(obj, the_value) result(ierror)
   type(c_ptr), intent(out) :: obj
