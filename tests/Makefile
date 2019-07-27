@@ -69,10 +69,10 @@ forpy_mod.o: ../forpy_mod.F90
 	$(FC) $(FFLAGS) -c -o $@ $<
 
 ../forpy_mod.F90: ../forpy_mod.fypp
-	python2 ../fypp.py ../forpy_mod.fypp ../forpy_mod.F90
+	$(PYTHON) ../fypp.py ../forpy_mod.fypp ../forpy_mod.F90
 	
 %.F90: %.fypp
-	python2 ../fypp.py $< $@
+	$(PYTHON) ../fypp.py $< $@
 
 .PHONY: clean
 clean:

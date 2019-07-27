@@ -1,0 +1,19 @@
+language: python
+dist: trusty
+python:
+    - "3.7"
+    - "3.6"
+    - "3.5"
+addons:
+  apt:
+    packages:
+      - gfortran
+      - libblas-dev
+      - liblapack-dev
+      - libopenmpi-dev
+      - openmpi-bin
+script:
+    - cd tests
+    - make epw
+git:
+  depth: 3
