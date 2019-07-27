@@ -1,7 +1,6 @@
 language: python
 dist: trusty
 python:
-    - "3.7"
     - "3.6"
     - "3.5"
 addons:
@@ -14,6 +13,6 @@ addons:
       - openmpi-bin
 script:
     - cd tests
-    - make epw
+    - make
 git:
   depth: 3
