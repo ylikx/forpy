@@ -6,8 +6,9 @@ python:
 addons:
   apt:
     packages:
-      - gfortran-7
+      - gfortran
 script:
+    - apt-cache search gfortran
     - gfortran --version
     - cd tests
     - make
