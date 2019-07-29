@@ -1,11 +1,23 @@
-language: generic
-dist: gcc:6
-addons:
-  apt:
-    packages:
-      - python3
+language: python
+
+python:
+  - 3.6
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gfortran-6
+            - python-pip
+      env:
+        - FC=gfortran-6
+
 script:
-    - gfortran --version
-    - gfortran-6 --version
+    - ${FC} --version
     - cd tests
-    - make FC=gfortran-6
+    - make FC=${FC}
