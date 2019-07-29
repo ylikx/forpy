@@ -1,5 +1,5 @@
 language: python
-dist: gcc-6
+dist: gcc:6
 python:
     - "3.6"
     - "3.5"
