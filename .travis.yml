@@ -1,11 +1,11 @@
 language: generic
+dist: gcc:6
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
-      - gfortran-6
+      - python3
 script:
     - gfortran --version
+    - gfortran-6 --version
     - cd tests
-    - make FC=gfortran
+    - make FC=gfortran-6
