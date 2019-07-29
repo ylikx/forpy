@@ -8,11 +8,10 @@ addons:
     sources:
        - ubuntu-toolchain-r-test
     packages:
-       - gfortran-8
+       - gfortran-7
 script:
-    - apt-cache search gfortran
-    - gfortran --version
+    - gfortran-7 --version
     - cd tests
-    - make
+    - make FC=gfortran-7
 git:
   depth: 3
