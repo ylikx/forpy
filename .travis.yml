@@ -12,6 +12,7 @@ addons:
       - libopenmpi-dev
       - openmpi-bin
 script:
+    - gfortran --version
     - cd tests
     - make
 git:
