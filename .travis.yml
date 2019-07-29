@@ -16,6 +16,39 @@ matrix:
             - python-pip
       env:
         - FC=gfortran-6
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gfortran-7
+            - python-pip
+      env:
+        - FC=gfortran-7
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gfortran-8
+            - python-pip
+      env:
+        - FC=gfortran-8
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gfortran-9
+            - python-pip
+      env:
+        - FC=gfortran-9
 
 script:
     - ${FC} --version
