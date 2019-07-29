@@ -1,17 +1,11 @@
 language: python
-dist: trusty
+dist: gcc-6
 python:
     - "3.6"
     - "3.5"
-addons:
-  apt:
-    sources:
-       - ubuntu-toolchain-r-test
-    packages:
-       - gfortran-7
 script:
-    - gfortran-7 --version
+    - gfortran --version
     - cd tests
-    - make FC=gfortran-7
+    - make FC=gfortran
 git:
   depth: 3
