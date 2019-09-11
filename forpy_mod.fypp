@@ -858,7 +858,7 @@ end interface
  & 'ValueError', 'Warning', 'ZeroDivisionError']
 
 #:set FORPY_TYPES = ("object", "list", "tuple", "dict", "ndarray", "type_py", "module_py", "NoneType")
-#:set SCALAR_FORTRAN_TYPE_INFO = zip(("integer(kind=int32)", "integer(kind=int64)", "real(kind=real32)", "real(kind=real64)", "complex(kind=real32)", "complex(kind=real64)", "logical"), ("int32", "int64", "real32", "real64", "complex_real32", "complex_real64", "logical"), ("is_int", "is_int", "is_float", "is_float", "is_complex", "is_complex", "is_bool"))
+#:set SCALAR_FORTRAN_TYPE_INFO = list(zip(("integer(kind=int32)", "integer(kind=int64)", "real(kind=real32)", "real(kind=real64)", "complex(kind=real32)", "complex(kind=real64)", "logical"), ("int32", "int64", "real32", "real64", "complex_real32", "complex_real64", "logical"), ("is_int", "is_int", "is_float", "is_float", "is_complex", "is_complex", "is_bool")))
 
 #! some fypp macros to avoid code duplication
 #:def exception_check()
