@@ -55,6 +55,8 @@ gfortran (ifort also supported).
 If you are using *Anaconda* and have problems when building read
 [Using forpy with Anaconda](#using-forpy-with-anaconda). 
 
+If you are using *Windows*, read [Forpy on Windows](https://github.com/ylikx/forpy/wiki/Forpy-on-Windows).
+
 For use with Python 2 read [Python 2 support](#python-2-support).
  
 Save the example as `intro_to_forpy.F90` and type:
