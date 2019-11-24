@@ -1776,6 +1776,7 @@ interface cast
   
   module procedure cast_to_char_1d
   module procedure cast_to_chars
+  module procedure cast_from_chars
   
   module procedure cast_to_int32
   module procedure cast_to_int32_flex
@@ -11233,7 +11234,7 @@ function cast_nonstrict_to_logical(out_value, obj) result(ierror)
 end function
 
 
-! casts to strings
+! casts to/from strings
 function cast_to_chars(out_value, obj) result(ierror)
   character(kind=C_CHAR, len=:), allocatable, intent(out) :: out_value
   class(object), intent(in) :: obj
@@ -11245,6 +11246,14 @@ function cast_to_chars(out_value, obj) result(ierror)
     ierror = EXCEPTION_ERROR
     call raise_exception(TypeError, "forpy: Could not cast to character(kind=C_CHAR, len=:).")
   endif
+end function
+
+function cast_from_chars(obj, in_value) result(ierror)
+  type(object), intent(out) :: obj
+  character(kind=C_CHAR, len=:), allocatable, intent(in) :: in_value
+  integer(kind=C_INT) :: ierror
+
+  ierror = box_value(obj%py_object, in_value)
 end function
 
 function cast_to_char_1d(out_value, obj) result(ierror)
