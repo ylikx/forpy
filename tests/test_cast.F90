@@ -50,6 +50,7 @@ TEST(test_cast_nonstrict_tuple_to_chars)
 TEST(test_cast_nonstrict_int_to_chars)
 TEST(test_cast_nonstrict_bytes_to_chars)
 TEST(test_cast_bytes_to_chars)
+TEST(test_cast_chars_to_object)
 call tearDownClass
 
 end program

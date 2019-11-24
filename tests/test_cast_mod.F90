@@ -380,6 +380,20 @@ subroutine test_cast_bytes_to_chars
   call some_bytes%destroy
 end subroutine
 
+subroutine test_cast_chars_to_object
+  integer ierror
+  type(object) :: a_string
+  character(kind=C_CHAR, len=8), parameter :: fstring = "abcdefgh"
+  character(kind=C_CHAR, len=:), allocatable :: res
+  
+  ierror = cast(a_string, fstring)
+  ASSERT(ierror==0)
+  ierror = cast(res, a_string)
+  ASSERT(ierror==0)
+  ASSERT(res==fstring)
+  call a_string%destroy
+end subroutine
+
 subroutine setUp()
  call setUp_forpy_test
 end subroutine

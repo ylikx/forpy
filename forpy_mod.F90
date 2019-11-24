@@ -1776,6 +1776,7 @@ interface cast
   
   module procedure cast_to_char_1d
   module procedure cast_to_chars
+  module procedure cast_from_char_1d
   module procedure cast_from_chars
   
   module procedure cast_to_int32
@@ -11250,7 +11251,15 @@ end function
 
 function cast_from_chars(obj, in_value) result(ierror)
   type(object), intent(out) :: obj
-  character(kind=C_CHAR, len=:), allocatable, intent(in) :: in_value
+  character(kind=C_CHAR, len=*), intent(in) :: in_value
+  integer(kind=C_INT) :: ierror
+
+  ierror = box_value(obj%py_object, in_value)
+end function
+
+function cast_from_char_1d(obj, in_value) result(ierror)
+  type(object), intent(out) :: obj
+  character(kind=C_CHAR), dimension(:), intent(in) :: in_value
   integer(kind=C_INT) :: ierror
 
   ierror = box_value(obj%py_object, in_value)
