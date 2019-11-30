@@ -2022,9 +2022,27 @@ function forpy_initialize_helper(is_extension, use_numpy) result(ierror)
     return
   endif
 
+  ierror = forpy_initialize_sys_argv()
+  if (ierror /= 0) then
+    return
+  endif
+
   if (use_numpy) then
     ierror = forpy_initialize_numpy()
   endif
+end function
+
+!> Sets sys.argv = [''], since some 3rd party Python modules require
+!> sys.argv[0] - before Python 3.8 sys.argv does not exist in embedded Python,
+!> see https://bugs.python.org/issue32573
+function forpy_initialize_sys_argv() result(ierror)
+  integer(kind=C_INT) :: ierror
+  
+  ! there also exist C-API functions to set sys.argv, but they involve wchar_t
+  ! which iso_c_binding does not support and that has platform dep. size
+  ierror = PyRun_SimpleString("import sys" // C_NEW_LINE // &
+                              "if not hasattr(sys, 'argv'):" // C_NEW_LINE // &
+                              "  sys.argv=['']" // C_NEW_LINE // C_NULL_CHAR)
 end function
 
 function forpy_initialize_numpy() result(ierror)

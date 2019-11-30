@@ -59,6 +59,7 @@ TEST(test_exception_before_return)
 TEST(test_minus_ones64)
 TEST(test_minus_ones32)
 TEST(test_return_unicode)
+TEST(test_check_sys_argv)
 
 call tearDownClass
 

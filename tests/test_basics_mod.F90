@@ -606,6 +606,14 @@ subroutine test_return_unicode
   call retval%destroy
 end subroutine
 
+! Test if sys.argv exists and was set to [''], since some Python
+! packages need it
+subroutine test_check_sys_argv()
+  integer :: ierror
+  ierror = call_py_noret(test_mod, "check_sys_argv")
+  ASSERT(ierror==0)
+end subroutine
+
 subroutine setUp()
  call setUp_forpy_test
 end subroutine
