@@ -569,39 +569,48 @@ end subroutine
 
 subroutine test_return_unicode
   integer ierror
-  character(kind=C_CHAR), dimension(:), pointer :: uni
+  character(kind=C_CHAR, len=:), allocatable :: uni
   type(object) :: retval
-  logical :: exc_correct
-  character(kind=C_CHAR), dimension(12) :: solution
-  
-  solution(1) = char(229, kind=C_CHAR) 
-  solution(2) = char(159, kind=C_CHAR)
-  solution(3) = char(131, kind=C_CHAR)
-  solution(4) = char(229, kind=C_CHAR)
-  solution(5) = char(136, kind=C_CHAR)
-  solution(6) = char(169, kind=C_CHAR)
-  solution(7) = char(228, kind=C_CHAR)
-  solution(8) = char(186, kind=C_CHAR)
-  solution(9) = char(154, kind=C_CHAR)
-  solution(10) = char(230, kind=C_CHAR)
-  solution(11) = char(150, kind=C_CHAR)
-  solution(12) = char(175, kind=C_CHAR)
+  character(kind=C_CHAR, len=12) :: solution
+
+  solution(1:1) = char(229, kind=C_CHAR)
+  solution(2:2) = char(159, kind=C_CHAR)
+  solution(3:3) = char(131, kind=C_CHAR)
+  solution(4:4) = char(229, kind=C_CHAR)
+  solution(5:5) = char(136, kind=C_CHAR)
+  solution(6:6) = char(169, kind=C_CHAR)
+  solution(7:7) = char(228, kind=C_CHAR)
+  solution(8:8) = char(186, kind=C_CHAR)
+  solution(9:9) = char(154, kind=C_CHAR)
+  solution(10:10) = char(230, kind=C_CHAR)
+  solution(11:11) = char(150, kind=C_CHAR)
+  solution(12:12) = char(175, kind=C_CHAR)
 
   ierror = call_py(retval, test_mod, "return_unicode")
   ASSERT(ierror==0)
   ASSERT(is_unicode(retval))
   ierror = cast(uni, retval)
-  if (ierror /= 0) then
-    ! Python 2: casting from unicode not supported (yet)
-    exc_correct = exception_matches(TypeError)
-    ASSERT(exc_correct)
-    call err_clear
-    call retval%destroy
-    return
-  endif
-  
-  ASSERT(size(uni)==12)
-  ASSERT(all(uni==solution))
+  ASSERT(ierror==0)
+
+  ASSERT(uni==solution)
+  ASSERT(len(uni)==12)
+
+  call retval%destroy
+end subroutine
+
+subroutine test_return_bytes
+  integer ierror
+  type(object) :: retval
+
+  ierror = call_py(retval, test_mod, "return_bytes")
+  ASSERT(ierror==0)
+  ASSERT(is_bytes(retval))
+  ASSERT(.not. is_unicode(retval))
+#ifdef PYTHON2
+  ASSERT(is_str(retval))
+#else
+  ASSERT(.not. is_str(retval))
+#endif
   
   call retval%destroy
 end subroutine

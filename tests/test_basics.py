@@ -78,6 +78,9 @@ def exception_before_return():
 def return_unicode():
     return u"埃利亚斯"
 
+def return_bytes():
+    return b"saile"
+
 def check_sys_argv():
     if sys.argv != ['']:
         raise RuntimeError("sys.argv != [''], argv = {0}".format(sys.argv))

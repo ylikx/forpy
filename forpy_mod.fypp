@@ -613,6 +613,19 @@ interface
   end function  
 #endif
 
+  !PyObject* PyUnicode_AsUTF8String(PyObject *unicode)
+#ifdef PYTHON2
+#ifdef PYTHON2_NARROW
+  function PyUnicode_AsUTF8String(unicode) bind(c, name="PyUnicodeUCS2_AsUTF8String") result(r)
+#else
+  function PyUnicode_AsUTF8String(unicode) bind(c, name="PyUnicodeUCS4_AsUTF8String") result(r)
+#endif
+    import c_ptr
+    type(c_ptr), value :: unicode
+    type(c_ptr) :: r
+  end function
+#endif
+
   function PyEval_GetBuiltins() bind(c, name="PyEval_GetBuiltins") result(r)
     import c_ptr
     type(c_ptr) :: r
@@ -4062,7 +4075,8 @@ function unbox_value_char_1d(the_value, obj) result(ierror)
 
 end function
 
-! unboxes making a copy
+! unboxes by making a copy
+#ifndef PYTHON2
 function unbox_value_chars(the_value, obj) result(ierror)
   character(kind=C_CHAR, len=:), allocatable, intent(out) :: the_value
   type(c_ptr), intent(in) :: obj
@@ -4077,6 +4091,38 @@ function unbox_value_chars(the_value, obj) result(ierror)
   endif
   
 end function
+#endif
+
+#ifdef PYTHON2
+function unbox_value_chars(the_value, obj) result(ierror)
+  ! py2 unicode strategy: convert to Python str object first
+  character(kind=C_CHAR, len=:), allocatable, intent(out) :: the_value
+  type(c_ptr), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  type(c_ptr) :: bytes_obj
+  type(object) :: dummy_obj
+  character(kind=C_CHAR), dimension(:), pointer :: char_ptr
+
+  dummy_obj%py_object = obj
+  ierror = EXCEPTION_ERROR
+
+  if (is_unicode(dummy_obj)) then
+    bytes_obj = PyUnicode_AsUTF8String(obj)
+    if (c_associated(bytes_obj)) then
+      ierror = unbox_value_char_1d(char_ptr, bytes_obj)
+      call Py_Decref(bytes_obj)
+    endif
+  else
+    ierror = unbox_value_char_1d(char_ptr, obj)
+  endif
+
+  if (ierror == 0_C_INT) then
+    call char_1d_to_chars(char_ptr, the_value)
+  endif
+
+end function
+#endif
 
 subroutine char_1d_to_chars(inp, outp)
   character(kind=C_CHAR), dimension(:), intent(in) :: inp
