@@ -51,6 +51,10 @@ TEST(test_cast_nonstrict_int_to_chars)
 TEST(test_cast_nonstrict_bytes_to_chars)
 TEST(test_cast_bytes_to_chars)
 TEST(test_cast_chars_to_object)
+
+TEST(test_cast_to_str)
+TEST(test_cast_to_bytes)
+TEST(test_cast_to_unicode)
 call tearDownClass
 
 end program

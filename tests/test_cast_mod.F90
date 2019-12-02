@@ -394,6 +394,70 @@ subroutine test_cast_chars_to_object
   call a_string%destroy
 end subroutine
 
+subroutine test_cast_to_str
+  integer ierror
+  type(object) :: a_string
+  type(str) :: str_specific
+  character(kind=C_CHAR, len=8), parameter :: fstring = "abcdefgh"
+  character(kind=C_CHAR, len=:), allocatable :: res
+  
+  ierror = cast(a_string, fstring)
+  ASSERT(ierror==0)
+  ierror = cast(str_specific, a_string)
+  ASSERT(ierror==0)
+  ierror = cast(res, str_specific)
+  ASSERT(ierror==0)
+  ASSERT(res==fstring)
+  call a_string%destroy
+  call str_specific%destroy
+end subroutine
+
+subroutine test_cast_to_bytes
+  integer ierror
+  type(bytes) :: some_bytes
+  type(object) :: some_object
+  type(bytes) :: bytes_specific
+  character(kind=C_CHAR, len=8), parameter :: fstring = "abcdefgh"
+  character(kind=C_CHAR, len=:), allocatable :: res
+  
+  ierror = bytes_create(some_bytes, fstring)
+  ASSERT(ierror==0)
+  ierror = cast(some_object, some_bytes)
+  ASSERT(ierror==0)
+  ierror = cast(bytes_specific, some_object)
+  ASSERT(ierror==0)
+  ierror = cast(res, bytes_specific)
+  ASSERT(ierror==0)
+  ASSERT(res==fstring)
+  call some_bytes%destroy
+  call some_object%destroy
+  call bytes_specific%destroy
+end subroutine
+
+subroutine test_cast_to_unicode
+  integer ierror
+  type(unicode) :: some_unicode
+  type(object) :: some_object
+  type(unicode) :: unicode_specific
+  character(kind=C_CHAR, len=5) :: fstring
+  character(kind=C_CHAR, len=:), allocatable :: res
+  
+  fstring = "s" // char(195) // char(188) // char(195) // char(159) 
+  
+  ierror = unicode_create(some_unicode, fstring)
+  ASSERT(ierror==0)
+  ierror = cast(some_object, some_unicode)
+  ASSERT(ierror==0)
+  ierror = cast(unicode_specific, some_object)
+  ASSERT(ierror==0)
+  ierror = cast(res, unicode_specific)
+  ASSERT(ierror==0)
+  ASSERT(res==fstring)
+  call some_unicode%destroy
+  call some_object%destroy
+  call unicode_specific%destroy
+end subroutine
+
 subroutine setUp()
  call setUp_forpy_test
 end subroutine

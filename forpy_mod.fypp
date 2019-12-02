@@ -1265,6 +1265,9 @@ interface cast
   module procedure cast_to_tuple
   module procedure cast_to_NoneType
   module procedure cast_to_ndarray
+  module procedure cast_to_str
+  module procedure cast_to_bytes
+  module procedure cast_to_unicode
   module procedure cast_to_object
   
   module procedure cast_to_char_1d
@@ -4149,21 +4152,26 @@ end subroutine
 ! Note: They do not transfer ownership to casted object - both input and
 ! output object have to be destroyed
 
-function cast_to_list(li, obj) result(ierror)
-  type(list), intent(out) :: li
+#:for TYPE in ("list", "dict", "tuple", "NoneType", "ndarray", "str", "bytes", "unicode")
+#:set OBJECT_OUT = TYPE + "_out"
+#:set TEST_FUNCTION = "is_" + TYPE if TYPE != "NoneType" else "is_none"
+function cast_to_${TYPE}$(${OBJECT_OUT}$, obj) result(ierror)
+  type(${TYPE}$), intent(out) :: ${OBJECT_OUT}$
   class(object), intent(in) :: obj
   integer(kind=C_INT) :: ierror
 
-  if (is_list(obj)) then
+  if (${TEST_FUNCTION}$(obj)) then
     ierror = 0_C_INT
-    li%py_object = obj%py_object
+    ${OBJECT_OUT}$%py_object = obj%py_object
     call Py_IncRef(obj%py_object)
   else
-    li%py_object = C_NULL_PTR
+    ${OBJECT_OUT}$%py_object = C_NULL_PTR
     ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to list.")
+    call raise_exception(TypeError, "forpy: Could not cast to ${TYPE}$.")
   endif
 end function
+
+#:endfor
 
 function cast_nonstrict_to_list(li, obj) result(ierror)
   type(list), intent(out) :: li
@@ -4179,38 +4187,6 @@ function cast_nonstrict_to_list(li, obj) result(ierror)
   endif
 end function
 
-function cast_to_dict(di, obj) result(ierror)
-  type(dict), intent(out) :: di
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_dict(obj)) then
-    ierror = 0_C_INT
-    di%py_object = obj%py_object
-    call Py_IncRef(obj%py_object)
-  else
-    di%py_object = C_NULL_PTR
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to dict.")
-  endif
-end function
-
-function cast_to_tuple(tu, obj) result(ierror)
-  type(tuple), intent(out) :: tu
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_tuple(obj)) then
-    ierror = 0_C_INT
-    tu%py_object = obj%py_object
-    call Py_IncRef(obj%py_object)
-  else
-    tu%py_object = C_NULL_PTR
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to tuple.")
-  endif
-end function
-
 function cast_nonstrict_to_tuple(tu, obj) result(ierror)
   type(tuple), intent(out) :: tu
   class(object), intent(in) :: obj
@@ -4222,38 +4198,6 @@ function cast_nonstrict_to_tuple(tu, obj) result(ierror)
     call Py_IncRef(obj%py_object)
   else
     ierror = tuple_create(tu, obj)
-  endif
-end function
-
-function cast_to_NoneType(no, obj) result(ierror)
-  type(NoneType), intent(out) :: no
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_none(obj)) then
-    ierror = 0_C_INT
-    no%py_object = obj%py_object
-    call Py_IncRef(obj%py_object)
-  else
-    no%py_object = C_NULL_PTR
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to NoneType.")
-  endif
-end function
-
-function cast_to_ndarray(nd, obj) result(ierror)
-  type(ndarray), intent(out) :: nd
-  class(object), intent(in) :: obj
-  integer(kind=C_INT) :: ierror
-
-  if (is_ndarray(obj)) then
-    ierror = 0_C_INT
-    nd%py_object = obj%py_object
-    call Py_IncRef(obj%py_object)
-  else
-    nd%py_object = C_NULL_PTR
-    ierror = EXCEPTION_ERROR
-    call raise_exception(TypeError, "forpy: Could not cast to ndarray.")
   endif
 end function
 
