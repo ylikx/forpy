@@ -368,6 +368,23 @@ subroutine test_cast_nonstrict_bytes_to_chars
   call some_bytes%destroy
 end subroutine
 
+subroutine test_cast_nonstrict_none_to_str
+  integer :: ierror
+  type(NoneType) :: the_none
+  type(str) :: a_str
+  character(kind=C_CHAR,len=:), allocatable :: res
+  
+  ierror = NoneType_create(the_none)
+  ASSERT(ierror==0)
+  ierror = cast_nonstrict(a_str, the_none)
+  ASSERT(ierror==0)
+  ierror = cast(res, a_str)
+  ASSERT(ierror==0)
+  ASSERT(res=='None')
+  call the_none%destroy
+  call a_str%destroy
+end subroutine
+
 subroutine test_cast_bytes_to_chars
   integer ierror
   type(bytes) :: some_bytes

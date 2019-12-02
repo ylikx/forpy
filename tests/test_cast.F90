@@ -49,6 +49,7 @@ TEST(test_cast_nonstrict_list_to_chars)
 TEST(test_cast_nonstrict_tuple_to_chars)
 TEST(test_cast_nonstrict_int_to_chars)
 TEST(test_cast_nonstrict_bytes_to_chars)
+TEST(test_cast_nonstrict_none_to_str)
 TEST(test_cast_bytes_to_chars)
 TEST(test_cast_chars_to_object)
 

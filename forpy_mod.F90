@@ -1840,6 +1840,7 @@ end interface
 interface cast_nonstrict
   module procedure cast_nonstrict_to_list
   module procedure cast_nonstrict_to_tuple
+  module procedure cast_nonstrict_to_str
   
   ! no cast_nonstrict_to_char_1d, because one can 
   ! not always return a pointer to a character buffer
@@ -11085,33 +11086,48 @@ function cast_to_unicode(unicode_out, obj) result(ierror)
 end function
 
 
-function cast_nonstrict_to_list(li, obj) result(ierror)
-  type(list), intent(out) :: li
+function cast_nonstrict_to_list(list_out, obj) result(ierror)
+  type(list), intent(out) :: list_out
   class(object), intent(in) :: obj
   integer(kind=C_INT) :: ierror
 
   if (is_list(obj)) then
     ierror = 0_C_INT
-    li%py_object = obj%py_object
+    list_out%py_object = obj%py_object
     call Py_IncRef(obj%py_object)
   else
-    ierror = list_create(li, obj)
+    ierror = list_create(list_out, obj)
   endif
 end function
 
-function cast_nonstrict_to_tuple(tu, obj) result(ierror)
-  type(tuple), intent(out) :: tu
+function cast_nonstrict_to_tuple(tuple_out, obj) result(ierror)
+  type(tuple), intent(out) :: tuple_out
   class(object), intent(in) :: obj
   integer(kind=C_INT) :: ierror
 
   if (is_tuple(obj)) then
     ierror = 0_C_INT
-    tu%py_object = obj%py_object
+    tuple_out%py_object = obj%py_object
     call Py_IncRef(obj%py_object)
   else
-    ierror = tuple_create(tu, obj)
+    ierror = tuple_create(tuple_out, obj)
   endif
 end function
+
+function cast_nonstrict_to_str(str_out, obj) result(ierror)
+  type(str), intent(out) :: str_out
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  if (is_str(obj)) then
+    ierror = 0_C_INT
+    str_out%py_object = obj%py_object
+    call Py_IncRef(obj%py_object)
+  else
+    ierror = str_create(str_out, obj)
+  endif
+end function
+
 
 function cast_to_object(plain_obj, obj) result(ierror)
   type(object), intent(out) :: plain_obj
