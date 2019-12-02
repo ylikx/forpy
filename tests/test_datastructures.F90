@@ -43,6 +43,7 @@ TEST(test_tuple_to_list)
 TEST(test_str_in_tuple)
 TEST(test_list_copy)
 TEST(test_dict_copy)
+TEST(test_str_create_object)
 
 call tearDownClass
 

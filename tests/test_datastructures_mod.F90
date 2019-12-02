@@ -264,6 +264,23 @@ subroutine test_str_in_tuple
   call t%destroy
 end subroutine
 
+subroutine test_str_create_object()
+  integer :: ierror
+  type(NoneType) :: the_none
+  type(str) :: a_str
+  character(kind=C_CHAR,len=:), allocatable :: res
+
+  ierror = NoneType_create(the_none)
+  ASSERT(ierror==0)
+  ierror = str_create(a_str, the_none)
+  ASSERT(ierror==0)
+  ierror = cast(res, a_str)
+  ASSERT(ierror==0)
+  ASSERT(res=='None')
+  call the_none%destroy
+  call a_str%destroy
+end subroutine
+
 subroutine setUp()
   call setUp_forpy_test
 end subroutine

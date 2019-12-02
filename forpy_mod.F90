@@ -1525,7 +1525,8 @@ end type
 !> Creates a str object from Fortran character string or character array.
 interface str_create
   module procedure str_create_chars
-  module procedure str_create_char_1d  
+  module procedure str_create_char_1d
+  module procedure str_create_object
 end interface
 
 !> Type corresponding to Python 2 'unicode' or Python 3 'str'.
@@ -7045,6 +7046,18 @@ function str_create_char_1d(r, string) result(ierror)
 #else
   ierror = box_value_char_1d_as_unicodestr(r%py_object, string)
 #endif
+end function
+
+function str_create_object(r, obj) result(ierror)
+  type(str), intent(out) :: r
+  class(object), intent(in) :: obj
+  integer(kind=C_INT) :: ierror
+
+  ierror = 0_C_INT
+  r%py_object = PyObject_Str(obj%py_object)
+  if (.not. c_associated(r%py_object)) then
+    ierror = EXCEPTION_ERROR
+  endif
 end function
 
 !-----------------------------------------------------------------------------------------------------
