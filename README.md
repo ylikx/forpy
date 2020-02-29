@@ -729,8 +729,10 @@ function print_args(self_ptr, args_ptr, kwargs_ptr) result(r) bind(c)
   call unsafe_cast_from_c_ptr(args, args_ptr)
   call unsafe_cast_from_c_ptr(kwargs, kwargs_ptr)
   
+  r = C_NULL_PTR ! in case of exception return C_NULL_PTR
+
   if (is_null(kwargs)) then
-    ! This is a check if keyword argument were passed to this function.
+    ! This is a check if keyword arguments were passed to this function.
     ! If is_null(kwargs), kwargs is not a valid Python object, therefore
     ! we initialise it as an empty dict
     ierror = dict_create(kwargs)
@@ -739,7 +741,10 @@ function print_args(self_ptr, args_ptr, kwargs_ptr) result(r) bind(c)
   ierror = print_py(args)
   ierror = print_py(kwargs)
   
-  ! You always need to return something, at least None
+  ! You always need to return a Python object (as c_ptr) in the error free case. 
+  ! If you do not need a return value, return a Python None
+  ! In case of an exception return C_NULL_PTR
+
   ierror = NoneType_create(retval)
   r = retval%get_c_ptr() ! need return value as c_ptr
   
