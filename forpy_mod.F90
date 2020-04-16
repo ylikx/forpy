@@ -2054,7 +2054,7 @@ function forpy_initialize_sys_argv() result(ierror)
   ! there also exist C-API functions to set sys.argv, but they involve wchar_t
   ! which iso_c_binding does not support and that has platform dep. size
   ierror = PyRun_SimpleString("import sys" // C_NEW_LINE // &
-                              "if not hasattr(sys, 'argv'):" // C_NEW_LINE // &
+                              "if not hasattr(sys, 'argv') or sys.argv==[]:" // C_NEW_LINE // &
                               "  sys.argv=['']" // C_NEW_LINE // C_NULL_CHAR)
 end function
 
@@ -2419,7 +2419,7 @@ end function
 
 !> Frees resources used by Python interpreter. Call when finished using forpy.
 subroutine forpy_finalize()
-
+  global_forpy_initialized = 0
   call Py_Decref(global_numpy_asarray_method)
   call Py_Decref(global_numpy_mod)
   global_numpy_asarray_method = C_NULL_PTR
