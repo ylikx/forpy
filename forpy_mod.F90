@@ -50,7 +50,7 @@ tuple_create, list_create, dict_create, bytes_create, str_create, &
 unicode_create, NoneType_create, ndarray_create, ndarray_create_nocopy, & 
 ndarray_create_empty, ndarray_create_zeros, ndarray_create_ones, &
 import_py, call_py, call_py_noret, assign_py, cast, cast_nonstrict, &
-PythonMethodTable, PythonModule, forpy_initialize, forpy_initialize_ext, &
+PythonMethodTable, PythonModule, forpy_initialize, &
 forpy_finalize, is_long, is_list, is_tuple, is_bytes, is_dict, &
 is_float, is_complex, is_bool, is_unicode, is_int, is_str, is_none, &
 is_null, is_ndarray, exception_matches, err_clear, err_print, have_exception, &
@@ -72,6 +72,7 @@ PRIVATE
 
 ! These global variables shall be set in
 ! forpy_initialize only and never changed afterwards!
+integer, private, save :: global_forpy_initialized = 0
 type(c_ptr), private, save :: global_numpy_mod = C_NULL_PTR
 type(c_ptr), private, save :: global_numpy_asarray_method = C_NULL_PTR
 ! the location of the singleton Python Py_NoneStruct method
@@ -246,6 +247,11 @@ end type
 interface
   subroutine Py_Initialize() bind(c, name="Py_Initialize")
   end subroutine
+
+  function Py_IsInitialized() bind(c, name="Py_IsInitialized") result(r)
+    import C_INT
+    integer(kind=C_INT) :: r
+  end function
 
   subroutine Py_Finalize() bind(c, name="Py_Finalize")
   end subroutine
@@ -1973,41 +1979,34 @@ function forpy_initialize(use_numpy) result(ierror)
   integer(kind=C_INT) :: ierror
   
   logical :: numpy_flag
+
   if (present(use_numpy)) then
     numpy_flag = use_numpy
   else
     numpy_flag = .true.
   endif
 
-  ierror = forpy_initialize_helper(.false., numpy_flag)
-end function
-
-!> Deprecated: use forpy_initialize instead
-function forpy_initialize_ext(use_numpy) result(ierror)
-  !> Set to .false., if you do not need the array features of forpy powered by numpy. (Default: .true.)
-  logical, optional, intent(in) :: use_numpy
-  integer(kind=C_INT) :: ierror
-  
-  logical :: numpy_flag
-  if (present(use_numpy)) then
-    numpy_flag = use_numpy
-  else
-    numpy_flag = .true.
-  endif
-
-  ierror = forpy_initialize_helper(.true., numpy_flag)
-end function
-
-function forpy_initialize_helper(is_extension, use_numpy) result(ierror)
-  logical, intent(in) :: is_extension
-  logical, intent(in) :: use_numpy
-  integer(kind=C_INT) :: ierror
-  
-  ! might remove this in the future, since it is required that
-  ! calling Py_Initialize multiple times is safe
-  if (.not. is_extension) then
+  ierror = 1_C_INT
+  if (Py_IsInitialized() == 0_C_INT) then
     call Py_Initialize()
   endif
+
+  ierror = 0_C_INT
+  if (global_forpy_initialized == 0) then
+    ierror = forpy_initialize_forpy_globals()
+    if (ierror == 0_C_INT) then
+      global_forpy_initialized = 1
+    endif
+  endif
+
+  if (ierror == 0_C_INT .and. numpy_flag &
+      .and. .not. c_associated(global_numpy_mod)) then
+    ierror = forpy_initialize_numpy()
+  endif
+end function
+
+function forpy_initialize_forpy_globals() result(ierror)
+  integer(kind=C_INT) :: ierror
   
   ! Initialise Python's None object
   ierror = forpy_initialize_none()
@@ -2043,10 +2042,6 @@ function forpy_initialize_helper(is_extension, use_numpy) result(ierror)
   ierror = forpy_initialize_sys_argv()
   if (ierror /= 0) then
     return
-  endif
-
-  if (use_numpy) then
-    ierror = forpy_initialize_numpy()
   endif
 end function
 
