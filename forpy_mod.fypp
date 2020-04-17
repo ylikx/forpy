@@ -4119,11 +4119,12 @@ function unbox_value_chars(the_value, obj) result(ierror)
   dummy_obj%py_object = obj
   ierror = EXCEPTION_ERROR
 
+  bytes_obj = C_NULL_PTR
+
   if (is_unicode(dummy_obj)) then
     bytes_obj = PyUnicode_AsUTF8String(obj)
     if (c_associated(bytes_obj)) then
       ierror = unbox_value_char_1d(char_ptr, bytes_obj)
-      call Py_Decref(bytes_obj)
     endif
   else
     ierror = unbox_value_char_1d(char_ptr, obj)
@@ -4132,6 +4133,8 @@ function unbox_value_chars(the_value, obj) result(ierror)
   if (ierror == 0_C_INT) then
     call char_1d_to_chars(char_ptr, the_value)
   endif
+
+  if (c_associated(bytes_obj)) call Py_Decref(bytes_obj)
 
 end function
 #endif
