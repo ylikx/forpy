@@ -846,7 +846,11 @@ interface unbox_value
   module procedure unbox_value_complex_real32
   module procedure unbox_value_complex_real64
   module procedure unbox_value_logical
+#ifdef PYTHON2
+  module procedure unbox_value_chars_py2
+#else
   module procedure unbox_value_chars
+#endif
   module procedure unbox_value_char_1d
 end interface
 
@@ -4088,7 +4092,6 @@ function unbox_value_char_1d(the_value, obj) result(ierror)
 end function
 
 ! unboxes by making a copy
-#ifndef PYTHON2
 function unbox_value_chars(the_value, obj) result(ierror)
   character(kind=C_CHAR, len=:), allocatable, intent(out) :: the_value
   type(c_ptr), intent(in) :: obj
@@ -4103,39 +4106,30 @@ function unbox_value_chars(the_value, obj) result(ierror)
   endif
   
 end function
-#endif
 
 #ifdef PYTHON2
-function unbox_value_chars(the_value, obj) result(ierror)
-  ! py2 unicode strategy: convert to Python str object first
+function unbox_value_chars_py2(the_value, obj) result(ierror)
+
   character(kind=C_CHAR, len=:), allocatable, intent(out) :: the_value
   type(c_ptr), intent(in) :: obj
   integer(kind=C_INT) :: ierror
 
   type(c_ptr) :: bytes_obj
   type(object) :: dummy_obj
-  character(kind=C_CHAR), dimension(:), pointer :: char_ptr
 
   dummy_obj%py_object = obj
   ierror = EXCEPTION_ERROR
 
-  bytes_obj = C_NULL_PTR
-
+  ! py2 unicode strategy: convert to Python str object first
   if (is_unicode(dummy_obj)) then
     bytes_obj = PyUnicode_AsUTF8String(obj)
     if (c_associated(bytes_obj)) then
-      ierror = unbox_value_char_1d(char_ptr, bytes_obj)
+      ierror = unbox_value_chars(the_value, bytes_obj)
+      call Py_Decref(bytes_obj)
     endif
   else
-    ierror = unbox_value_char_1d(char_ptr, obj)
+    ierror = unbox_value_chars(the_value, obj)
   endif
-
-  if (ierror == 0_C_INT) then
-    call char_1d_to_chars(char_ptr, the_value)
-  endif
-
-  if (c_associated(bytes_obj)) call Py_Decref(bytes_obj)
-
 end function
 #endif
 
