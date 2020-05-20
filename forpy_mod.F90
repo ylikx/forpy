@@ -1,4 +1,4 @@
-! Copyright (C) 2017-2018  Elias Rabel
+! Copyright (C) 2017-2020  Elias Rabel
 !
 ! This program is free software: you can redistribute it and/or modify
 ! it under the terms of the GNU Lesser General Public License as published by 
@@ -10932,7 +10932,6 @@ subroutine char_1d_to_chars(inp, outp)
   
   length = size(inp)
   
-  ! Check allocation fails?
   if (allocated(outp)) then
     deallocate(outp)
   endif
