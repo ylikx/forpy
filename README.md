@@ -58,14 +58,19 @@ If you are using *Anaconda* and have problems when building read
 If you are using *Windows*, read [Forpy on Windows](https://github.com/ylikx/forpy/wiki/Forpy-on-Windows).
 
 For use with Python 2 read [Python 2 support](#python-2-support).
-
-*Arch Linux* users should read [Building on Arch Linux](#building-on-arch-linux).
  
-Save the example as `intro_to_forpy.F90` and type:
+Save the example as `intro_to_forpy.F90` and type, depending on your Python version:
 
-```
+```bash
+# Python 3.7 and earlier
 gfortran -c forpy_mod.F90
 gfortran intro_to_forpy.F90 forpy_mod.o `python3-config --ldflags`
+```
+
+```bash
+# Python 3.8 and higher
+gfortran -c forpy_mod.F90
+gfortran intro_to_forpy.F90 forpy_mod.o `python3-config --ldflags --embed`
 ```
 
 Then run the example with
@@ -846,15 +851,4 @@ gfortran intro_to_forpy.F90 forpy_mod.o -fno-lto `python3-config --ldflags`
 2) OR: Another solution is to use the `gfortran` compiler provided by the Anaconda distribution.
 (Install on Linux with `conda install gfortran_linux-64`)
 
-See [Anaconda compiler tools](https://github.com/conda/conda-docs/blob/master/docs/source/user-guide/tasks/build-packages/compiler-tools.rst).
-
-## Building on Arch Linux
-
-On Arch Linux you have to add the parameter `-lpythonX.Y` at the linking step, where `X.Y` specifies
-the Python version. For example on Python 3.8 use:
-
-```
-gfortran -c forpy_mod.F90
-gfortran intro_to_forpy.F90 forpy_mod.o `python3-config --ldflags` -lpython3.8
-```
-See issue [#21](https://github.com/ylikx/forpy/issues/21)
+See [Anaconda compiler tools](https://docs.conda.io/projects/conda-build/en/latest/resources/compiler-tools.html)
