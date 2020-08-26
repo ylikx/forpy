@@ -1,0 +1,51 @@
+language: python
+
+python:
+   - 3.6
+
+sudo: false
+
+cache:
+  apt: true
+  pip: true
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gfortran-7
+            - python-pip
+      env:
+        - FC=gfortran-7
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gfortran-8
+            - python-pip
+      env:
+        - FC=gfortran-8
+    - os: linux
+      dist: trusty
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gfortran-9
+            - python-pip
+      env:
+        - FC=gfortran-9
+
+script:
+    - ${FC} --version
+    - cd tests
+    - make FC=${FC}
